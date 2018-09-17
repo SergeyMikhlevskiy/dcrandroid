@@ -98,7 +98,7 @@
         android:textSize="16sp"
         android:text="CONFIRM"
         android:textAllCaps="false"
-        android:textColor="@color/buttonText"
+        android:textColor="@color/buttonWhiteText"
         android:visibility="visible" />
 
 </RelativeLayout>
