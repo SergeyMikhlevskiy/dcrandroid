@@ -22,7 +22,7 @@ import com.dcrandroid.R;
 import com.dcrandroid.data.Constants;
 import com.dcrandroid.util.DcrConstants;
 import com.dcrandroid.util.RecyclerTouchListener;
-import com.dcrandroid.util.TransactionSorter;
+import com.dcrandroid.util.TransactionComparator;
 import com.dcrandroid.util.TransactionsResponse;
 import com.dcrandroid.util.TransactionsResponse.TransactionItem;
 
@@ -46,10 +46,10 @@ public class HistoryFragment extends Fragment implements SwipeRefreshLayout.OnRe
     private TransactionAdapter transactionAdapter;
     private  TextView refresh;
     private SwipeRefreshLayout swipeRefreshLayout;
-    RecyclerView recyclerView;
+    private RecyclerView recyclerView;
     private DcrConstants constants;
     private Spinner spinnerHostory;
-
+    private int latestTransactionHeight;
     private boolean needsUpdate = false,  isForeground;
 
     @Nullable
@@ -176,6 +176,8 @@ public class HistoryFragment extends Fragment implements SwipeRefreshLayout.OnRe
                 ObjectInputStream objectInputStream = new ObjectInputStream(new FileInputStream(file));
                 List<TransactionItem> temp = (List<TransactionItem>) objectInputStream.readObject();
                 transactionList.addAll(temp);
+                TransactionsResponse.TransactionItem latestTx = Collections.min(temp, new TransactionComparator.MinConfirmationSort());
+                latestTransactionHeight = latestTx.getHeight() + 1;
                 transactionAdapter.notifyDataSetChanged();
                 System.out.println("Done: "+transactionList.size());
                 if(transactionList.size() == 0){
@@ -204,6 +206,7 @@ public class HistoryFragment extends Fragment implements SwipeRefreshLayout.OnRe
 
     public void newTransaction(TransactionsResponse.TransactionItem transaction){
         transaction.animate = true;
+        latestTransactionHeight = transaction.getHeight() + 1;
         transactionList.add(0, transaction);
         getActivity().runOnUiThread(new Runnable() {
             @Override
@@ -211,6 +214,24 @@ public class HistoryFragment extends Fragment implements SwipeRefreshLayout.OnRe
                 transactionAdapter.notifyDataSetChanged();
             }
         });
+    }
+
+    public void transactionConfirmed(String hash, int height){
+        for(int i = 0; i < transactionList.size(); i++){
+            if(transactionList.get(i).hash.equals(hash)){
+                TransactionsResponse.TransactionItem transaction = transactionList.get(i);
+                transaction.height = height;
+                latestTransactionHeight = transaction.getHeight() + 1;
+                transactionList.set(i, transaction);
+                getActivity().runOnUiThread(new Runnable() {
+                    @Override
+                    public void run() {
+                        transactionAdapter.notifyDataSetChanged();
+                    }
+                });
+                break;
+            }
+        }
     }
 
     @Override
@@ -232,7 +253,9 @@ public class HistoryFragment extends Fragment implements SwipeRefreshLayout.OnRe
                     }
                 }else{
                     ArrayList<TransactionItem> transactions = response.transactions;
-                    Collections.sort(transactions, new TransactionSorter());
+                    Collections.sort(transactions, new TransactionComparator.TimestampSort());
+                    TransactionsResponse.TransactionItem latestTx = Collections.min(transactions, new TransactionComparator.MinConfirmationSort());
+                    latestTransactionHeight = latestTx.getHeight() + 1;
                     transactionList.clear();
                     transactionList.addAll(0, transactions);
                     if(refresh.isShown()){
@@ -248,4 +271,24 @@ public class HistoryFragment extends Fragment implements SwipeRefreshLayout.OnRe
             }
         });
     }
+
+    public void blockAttached(int height){
+        if((height - latestTransactionHeight) < 2){
+            for(int i = 0; i < transactionList.size(); i++){
+                TransactionsResponse.TransactionItem tx = transactionList.get(i);
+                if((height - tx.getHeight()) >= 2){
+                    continue;
+                }
+                tx.animate = true;
+                final int finalI = i;
+                getActivity().runOnUiThread(new Runnable() {
+                    @Override
+                    public void run() {
+                        transactionAdapter.notifyItemChanged(finalI);
+                    }
+                });
+            }
+        }
+    }
+
 }

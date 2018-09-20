@@ -176,31 +176,59 @@ public class Utils {
 
     public static String calculateTime(long seconds) {
         if (seconds > 59) {
+
+            // convert to minutes
             seconds /= 60;
+
             if (seconds > 59) {
+
+                // convert to hours
                 seconds /= 60;
+
                 if (seconds > 23) {
+
+                    // convert to days
                     seconds /= 24;
+
+                    if(seconds > 6){
+
+                        // convert to weeks
+                        seconds /= 7;
+                        if(seconds > 3){
+
+                            // convert to month
+                            seconds /= 4;
+
+                            if(seconds > 11){
+
+                                //Convert to
+                                seconds /= 12;
+
+                                return seconds +"y ago";
+                            }
+
+                            //months
+                            return seconds +"mo ago";
+                        }
+                        //weeks
+                        return seconds + "w ago";
+                    }
                     //days
                     return seconds + "d ago";
                 }
                 //hour
                 return seconds + "h ago";
             }
-            //minute
+
+            //minutes
             return seconds + "m ago";
         }
+
         if(seconds < 0){
             return "now";
         }
         //seconds
         return seconds + "s ago";
-    }
-
-    public static String formatDecred(double dcr){
-        DecimalFormat format = new DecimalFormat();
-        format.applyPattern("#,###,###,##0.00######");
-        return format.format(dcr);
     }
 
     public static String formatDecred(long dcr){
@@ -240,26 +268,6 @@ public class Utils {
         signed = signed.divide(feePerKb, MathContext.DECIMAL128);
 
         return signed.longValue();
-    }
-
-    public static long decredToAtom(String amt){
-        BigDecimal dcr = new BigDecimal(amt);
-        dcr = dcr.setScale(9, RoundingMode.HALF_UP);
-        BigDecimal atoms = new BigDecimal(1e8);
-        atoms = atoms.setScale(9, RoundingMode.HALF_UP);
-        dcr = dcr.multiply(atoms);
-
-        return dcr.longValue();
-    }
-
-    public static long decredToAtom(double amt){
-        BigDecimal dcr = new BigDecimal(amt);
-        dcr = dcr.setScale(9, RoundingMode.HALF_UP);
-        BigDecimal atoms = new BigDecimal(1e8);
-        atoms = atoms.setScale(9, RoundingMode.HALF_UP);
-        dcr = dcr.multiply(atoms);
-
-        return dcr.longValue();
     }
 
     public static String getPeerAddress(PreferenceUtil util){
@@ -355,9 +363,20 @@ public class Utils {
         }
     }
 
-    public static Byte[] reverseHash(Byte[] hash){
-        List<Byte> hashList = Arrays.asList(hash);
-        Collections.reverse(hashList);
-        return (Byte[]) hashList.toArray();
+    public static String translateError(Context ctx, Exception e){
+        switch (e.getMessage()){
+            case Mobilewallet.ErrInsufficientBalance:
+                return ctx.getString(R.string.not_enough_funds);
+            case Mobilewallet.ErrEmptySeed:
+                return ctx.getString(R.string.empty_seed);
+            case Mobilewallet.ErrNotConnected:
+                return ctx.getString(R.string.not_connected);
+            case Mobilewallet.ErrPassphraseRequired:
+                return ctx.getString(R.string.passphrase_required);
+            case Mobilewallet.ErrWalletNotLoaded:
+                return ctx.getString(R.string.wallet_not_loaded);
+            default:
+                return e.getMessage();
+        }
     }
 }
