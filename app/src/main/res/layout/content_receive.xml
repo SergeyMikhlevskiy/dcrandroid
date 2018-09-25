@@ -123,7 +123,7 @@
                 android:layout_height="wrap_content"
                 android:text="@string/copy_on_tap"
                 android:gravity="center"
-                android:textColor="#C4CBD2"
+                android:textColor="@color/secondaryTextColor54"
                 android:layout_marginTop="3dp"/>
 
             <Button

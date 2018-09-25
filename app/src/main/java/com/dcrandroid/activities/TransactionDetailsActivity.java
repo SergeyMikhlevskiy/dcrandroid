@@ -40,7 +40,6 @@ import mobilewallet.Mobilewallet;
 
 /**
  * Created by Macsleven on 02/01/2018.
- *
  */
 
 public class TransactionDetailsActivity extends AppCompatActivity {
@@ -50,7 +49,7 @@ public class TransactionDetailsActivity extends AppCompatActivity {
     private String transactionType, txHash, rawTx;
     private Bundle extras;
 
-    private void restartApp(){
+    private void restartApp() {
         PackageManager packageManager = getPackageManager();
         Intent intent = packageManager.getLaunchIntentForPackage(getPackageName());
         if (intent != null) {
@@ -64,7 +63,7 @@ public class TransactionDetailsActivity extends AppCompatActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        if (DcrConstants.getInstance().wallet == null){
+        if (DcrConstants.getInstance().wallet == null) {
             restartApp();
             return;
         }
@@ -72,7 +71,7 @@ public class TransactionDetailsActivity extends AppCompatActivity {
         setContentView(R.layout.transaction_details_view);
         util = new PreferenceUtil(this);
         extras = getIntent().getExtras();
-        if (extras == null){
+        if (extras == null) {
             System.out.println("Extras is null");
             return;
         }
@@ -80,7 +79,7 @@ public class TransactionDetailsActivity extends AppCompatActivity {
         expandableListView = findViewById(R.id.in_out);
 
         transactionType = extras.getString(Constants.TYPE);
-        transactionType = transactionType.substring(0,1).toUpperCase() + transactionType.substring(1).toLowerCase();
+        transactionType = transactionType.substring(0, 1).toUpperCase() + transactionType.substring(1).toLowerCase();
 
         ArrayList<TransactionsResponse.TransactionInput> inputs
                 = (ArrayList<TransactionsResponse.TransactionInput>) extras.getSerializable(Constants.INPUTS);
@@ -97,16 +96,14 @@ public class TransactionDetailsActivity extends AppCompatActivity {
         TextView transactionFee = findViewById(R.id.tx_fee);
         final TextView tvHash = findViewById(R.id.tx_hash);
 
-        TextView viewOnDcrdata = findViewById(R.id.tx_view_on_dcrdata);
-
-        viewOnDcrdata.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                String url = "https://testnet.dcrdata.org/tx/"+txHash;
-                Intent browserIntent = new Intent(Intent.ACTION_VIEW, Uri.parse(url));
-                startActivity(browserIntent);
-            }
-        });
+//        TextView viewOnDcrdata = findViewById(R.id.tx_view_on_dcrdata);
+//
+//        viewOnDcrdata.setOnClickListener(new View.OnClickListener() {
+//            @Override
+//            public void onClick(View v) {
+//
+//            }
+//        });
 
         tvHash.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -117,7 +114,7 @@ public class TransactionDetailsActivity extends AppCompatActivity {
 
         expandableListView.setOnItemLongClickListener(new AdapterView.OnItemLongClickListener() {
             @Override
-            public boolean onItemLongClick( AdapterView<?> parent, View view, int position, long id) {
+            public boolean onItemLongClick(AdapterView<?> parent, View view, int position, long id) {
 
                 long packedPosition = expandableListView.getExpandableListPosition(position);
 
@@ -125,8 +122,8 @@ public class TransactionDetailsActivity extends AppCompatActivity {
                 int groupPosition = ExpandableListView.getPackedPositionGroup(packedPosition);
                 int childPosition = ExpandableListView.getPackedPositionChild(packedPosition);
                 if (itemType == ExpandableListView.PACKED_POSITION_TYPE_CHILD) {
-                    if(groupPosition == 1){
-                        String[] temp =  expandableListView.getExpandableListAdapter().getChild(1,childPosition).toString().split("\\n");
+                    if (groupPosition == 1) {
+                        String[] temp = expandableListView.getExpandableListAdapter().getChild(1, childPosition).toString().split("\\n");
                         String hash = temp[0];
                         Utils.copyToClipboard(TransactionDetailsActivity.this, hash, getString(R.string.address_copy_text));
                     }
@@ -141,8 +138,8 @@ public class TransactionDetailsActivity extends AppCompatActivity {
         tvHash.setText(txHash);
         //DcrConstants.getInstance().wallet.getTransaction(txHash.getBytes());
 
-        value.setText(CoinFormat.Companion.format(Utils.removeTrailingZeros(Mobilewallet.amountCoin(extras.getLong(Constants.AMOUNT,0))) +" "+getString(R.string.dcr)));
-        transactionFee.setText(CoinFormat.Companion.format(Utils.removeTrailingZeros(Mobilewallet.amountCoin(extras.getLong(Constants.FEE,0))) +" "+getString(R.string.dcr)));
+        value.setText(CoinFormat.Companion.format(Utils.removeTrailingZeros(Mobilewallet.amountCoin(extras.getLong(Constants.AMOUNT, 0))) + " " + getString(R.string.dcr)));
+        transactionFee.setText(CoinFormat.Companion.format(Utils.removeTrailingZeros(Mobilewallet.amountCoin(extras.getLong(Constants.FEE, 0))) + " " + getString(R.string.dcr)));
 
         Calendar calendar = new GregorianCalendar(TimeZone.getDefault());
         calendar.setTimeInMillis(extras.getLong(Constants.TIMESTAMP) * 1000);
@@ -151,7 +148,7 @@ public class TransactionDetailsActivity extends AppCompatActivity {
         date.setText(calendar.getDisplayName(Calendar.MONTH, Calendar.SHORT, Locale.getDefault()) + sdf.format(calendar.getTime()).toLowerCase());
         txType.setText(transactionType);
         int height = extras.getInt(Constants.HEIGHT, 0);
-        if(height == -1){
+        if (height == -1) {
             //No included in block chain, therefore transaction is pending
             status.setBackgroundResource(R.drawable.tx_status_pending);
             status.setTextColor(Color.parseColor("#3d659c"));
@@ -161,7 +158,7 @@ public class TransactionDetailsActivity extends AppCompatActivity {
             int confirmations = DcrConstants.getInstance().wallet.getBestBlock() - height;
             confirmations += 1; //+1 confirmation that it exist in a block. best block - height returns 0.
             confirmation.setText(String.valueOf(confirmations));
-            if(util.getBoolean(Constants.SPEND_UNCONFIRMED_FUNDS) || confirmations > 1){
+            if (util.getBoolean(Constants.SPEND_UNCONFIRMED_FUNDS) || confirmations > 1) {
                 status.setBackgroundResource(R.drawable.tx_status_confirmed);
                 status.setTextColor(Color.parseColor("#55bb97"));
                 status.setText(R.string.confirmed);
@@ -173,7 +170,7 @@ public class TransactionDetailsActivity extends AppCompatActivity {
         }
     }
 
-    private void loadInOut(ArrayList<TransactionsResponse.TransactionInput> usedInput, ArrayList<TransactionsResponse.TransactionOutput> usedOutput){
+    private void loadInOut(ArrayList<TransactionsResponse.TransactionInput> usedInput, ArrayList<TransactionsResponse.TransactionOutput> usedOutput) {
         int txDirection = getIntent().getIntExtra(Constants.DIRECTION, -1);
         LibWallet wallet = DcrConstants.getInstance().wallet;
 
@@ -221,7 +218,7 @@ public class TransactionDetailsActivity extends AppCompatActivity {
             }
 
             JSONArray inputs = parent.getJSONArray(Constants.INPUTS);
-            for (int i = 0; i < inputs.length(); i++){
+            for (int i = 0; i < inputs.length(); i++) {
 
                 JSONObject input = inputs.getJSONObject(i);
 
@@ -260,12 +257,17 @@ public class TransactionDetailsActivity extends AppCompatActivity {
 
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
-        switch (item.getItemId()){
+        switch (item.getItemId()) {
             case R.id.tx_details_tx_hash:
                 Utils.copyToClipboard(this, txHash, getString(R.string.tx_hash_copy));
                 break;
             case R.id.tx_details_raw_tx:
                 Utils.copyToClipboard(this, rawTx, getString(R.string.raw_tx_copied));
+                break;
+            case R.id.tx_viewOnDcrData:
+                String url = "https://testnet.dcrdata.org/tx/" + txHash;
+                Intent browserIntent = new Intent(Intent.ACTION_VIEW, Uri.parse(url));
+                startActivity(browserIntent);
                 break;
         }
         return super.onOptionsItemSelected(item);
