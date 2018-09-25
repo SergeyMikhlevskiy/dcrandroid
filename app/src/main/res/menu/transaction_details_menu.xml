@@ -13,4 +13,10 @@
         android:contentDescription="Copy Hash"
         app:showAsAction="never"
         />
+    <item
+        android:id="@+id/tx_viewOnDcrData"
+        android:title="View On Dcrdata"
+        android:contentDescription="link to DCR data"
+        app:showAsAction="never"
+        />
 </menu>

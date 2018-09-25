@@ -365,7 +365,7 @@
                     android:layout_height="wrap_content"
                     android:fontFamily="@font/source_sans_pro_regular"
                     android:gravity="center"
-                    android:text="@string/fee"
+                    android:text="@string/estimatedFee"
                     android:textColor="@color/secondaryTextColor"
                     android:textSize="16sp" />
 
