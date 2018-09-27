@@ -2,6 +2,8 @@ package com.dcrandroid.util;
 
 import android.app.ProgressDialog;
 import android.content.Context;
+import android.content.res.Resources;
+import android.util.TypedValue;
 import android.view.Gravity;
 import android.widget.Toast;
 
@@ -22,6 +24,7 @@ import java.math.BigInteger;
 import java.math.MathContext;
 import java.math.RoundingMode;
 import java.text.DecimalFormat;
+import java.text.NumberFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Calendar;
@@ -244,6 +247,13 @@ public class Utils {
         format.applyPattern("#,###,###,##0.########");
         return format.format(dcr);
     }
+    public static String formatToUsaStandard(long dcr) {
+        double convertedDcr = Mobilewallet.amountCoin(dcr);
+        NumberFormat nf = NumberFormat.getNumberInstance(Locale.US);
+        DecimalFormat df = (DecimalFormat) nf;
+        df.applyPattern("#,###,###,##0.########");
+        return df.format(convertedDcr);
+    }
 
     public static String formatDecredWithoutComma(long dcr){
         BigDecimal atom = new BigDecimal(dcr);
@@ -283,6 +293,10 @@ public class Utils {
     }
 
     public static void copyToClipboard(Context ctx, String copyText, String successMessage) {
+        Resources r = ctx.getResources();
+        int margin25dp = Math.round(TypedValue.applyDimension(
+                TypedValue.COMPLEX_UNIT_DIP, 25, r.getDisplayMetrics()));
+
         int sdk = android.os.Build.VERSION.SDK_INT;
         if (sdk < android.os.Build.VERSION_CODES.HONEYCOMB) {
             android.text.ClipboardManager clipboard = (android.text.ClipboardManager) ctx.getSystemService(Context.CLIPBOARD_SERVICE);
@@ -299,7 +313,7 @@ public class Utils {
         }
         Toast toast = Toast.makeText(ctx,
                 successMessage, Toast.LENGTH_SHORT);
-        toast.setGravity(Gravity.BOTTOM | Gravity.END, 50, 50);
+        toast.setGravity(Gravity.BOTTOM, Gravity.CENTER_HORIZONTAL, margin25dp);
         toast.show();
     }
 

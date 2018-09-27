@@ -15,6 +15,7 @@ import android.support.v7.widget.DefaultItemAnimator;
 import android.support.v7.widget.DividerItemDecoration;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
+import android.util.Log;
 import android.util.TypedValue;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -50,12 +51,15 @@ import java.util.Collections;
 import java.util.List;
 
 import mobilewallet.GetTransactionsResponse;
+import mobilewallet.Mobilewallet;
 
 /**
  * Created by Macsleven on 28/11/2017.
  */
 
 public class OverviewFragment extends Fragment implements SwipeRefreshLayout.OnRefreshListener, GetTransactionsResponse {
+
+    public static final String OVERVIEW_FRAGMENT = "OverviewFragment";
 
     private List<TransactionsResponse.TransactionItem> transactionList = new ArrayList<>();
 
@@ -76,7 +80,7 @@ public class OverviewFragment extends Fragment implements SwipeRefreshLayout.OnR
     @Nullable
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
-        if(getContext() == null){
+        if (getContext() == null) {
             return null;
         }
         util = new PreferenceUtil(getContext());
@@ -143,11 +147,11 @@ public class OverviewFragment extends Fragment implements SwipeRefreshLayout.OnR
 
             }
         }));
-        TextView showHistory= rootView.findViewById(R.id.show_history);
+        TextView showHistory = rootView.findViewById(R.id.show_history);
         showHistory.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                if (getActivity() != null && getActivity() instanceof MainActivity){
+                if (getActivity() != null && getActivity() instanceof MainActivity) {
                     MainActivity mainActivity = (MainActivity) getActivity();
                     mainActivity.displayHistory();
                 }
@@ -162,17 +166,18 @@ public class OverviewFragment extends Fragment implements SwipeRefreshLayout.OnR
                     recyclerViewHeight = recyclerView.getHeight();
                     if (recyclerViewHeight != 0)
                         prepareHistoryData();
-                        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN) {
-                            recyclerView.getViewTreeObserver().removeOnGlobalLayoutListener(this);
-                        }else{
-                            recyclerView.getViewTreeObserver().removeGlobalOnLayoutListener(this);
-                        }
+                    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN) {
+                        recyclerView.getViewTreeObserver().removeOnGlobalLayoutListener(this);
+                    } else {
+                        recyclerView.getViewTreeObserver().removeGlobalOnLayoutListener(this);
+                    }
                 }
             });
         }
 
         recyclerView.setAdapter(transactionAdapter);
         registerForContextMenu(recyclerView);
+
         return rootView;
     }
 
@@ -180,13 +185,14 @@ public class OverviewFragment extends Fragment implements SwipeRefreshLayout.OnR
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
         //you can set the title for your toolbar here for different fragments different titles
-        if (getActivity() != null){
+        if (getActivity() != null) {
             getActivity().setTitle(getString(R.string.overview));
         }
     }
 
-    private int getMaxDisplayItems(){
-        if(getActivity() == null){
+
+    private int getMaxDisplayItems() {
+        if (getActivity() == null) {
             return 0;
         }
         int px = Math.round(TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, 52, getActivity().getResources().getDisplayMetrics()));
@@ -201,40 +207,40 @@ public class OverviewFragment extends Fragment implements SwipeRefreshLayout.OnR
         new Thread(){
             public void run(){
                 try {
-                    if(getContext() == null){
+                    if (getContext() == null) {
                         return;
                     }
                     final List<Account> accounts = Account.parse(constants.wallet.getAccounts(util.getBoolean(Constants.SPEND_UNCONFIRMED_FUNDS) ? 0 : Constants.REQUIRED_CONFIRMATIONS));
                     long totalBalance = 0;
-                    for(int i = 0; i < accounts.size(); i++){
-                        if(util.getBoolean(Constants.HIDE_WALLET + accounts.get(i).getAccountNumber())){
+                    for (int i = 0; i < accounts.size(); i++) {
+                        if (util.getBoolean(Constants.HIDE_WALLET + accounts.get(i).getAccountNumber())) {
                             continue;
                         }
                         totalBalance += accounts.get(i).getBalance().getTotal();
                     }
                     final long finalTotalBalance = totalBalance;
-                    if(getActivity() == null){
+                    if (getActivity() == null) {
                         return;
                     }
                     getActivity().runOnUiThread(new Runnable() {
                         @Override
                         public void run() {
-                            tvBalance.setText(CoinFormat.Companion.format(Utils.formatDecred(finalTotalBalance) + " DCR"));
+                            tvBalance.setText(CoinFormat.Companion.format(Utils.formatToUsaStandard(finalTotalBalance) + " DCR"));
                         }
                     });
-                }catch (Exception e){
+                } catch (Exception e) {
                     e.printStackTrace();
                 }
             }
         }.start();
     }
 
-    public void prepareHistoryData(){
-        if(!isForeground){
+    public void prepareHistoryData() {
+        if (!isForeground) {
             needsUpdate = true;
             return;
         }
-        if(getActivity() == null){
+        if (getActivity() == null) {
             return;
         }
         getActivity().runOnUiThread(new Runnable() {
@@ -262,29 +268,29 @@ public class OverviewFragment extends Fragment implements SwipeRefreshLayout.OnR
         }.start();
     }
 
-    public void saveTransactions(ArrayList<TransactionsResponse.TransactionItem> transactions){
+    public void saveTransactions(ArrayList<TransactionsResponse.TransactionItem> transactions) {
         try {
-            File path = new File(getContext().getFilesDir()+"/savedata/");
+            File path = new File(getContext().getFilesDir() + "/savedata/");
             path.mkdirs();
-            File file = new File(getContext().getFilesDir()+"/savedata/transactions");
+            File file = new File(getContext().getFilesDir() + "/savedata/transactions");
             file.createNewFile();
             ObjectOutputStream objectOutputStream = new ObjectOutputStream(new FileOutputStream(file));
             objectOutputStream.writeObject(transactions);
             objectOutputStream.close();
-        }catch (Exception e){
+        } catch (Exception e) {
             e.printStackTrace();
         }
     }
 
-    public void loadTransactions(){
+    public void loadTransactions() {
         try {
-            File path = new File(getContext().getFilesDir()+"/savedata/");
+            File path = new File(getContext().getFilesDir() + "/savedata/");
             path.mkdirs();
             File file = new File(path, "transactions");
             if(file.exists()){
                 ObjectInputStream objectInputStream = new ObjectInputStream(new FileInputStream(file));
                 ArrayList<TransactionsResponse.TransactionItem> temp = (ArrayList<TransactionsResponse.TransactionItem>) objectInputStream.readObject();
-                if(temp.size() > 0) {
+                if (temp.size() > 0) {
                     if (temp.size() > getMaxDisplayItems()) {
                         transactionList.addAll(temp.subList(0, getMaxDisplayItems()));
                     } else {
@@ -293,7 +299,7 @@ public class OverviewFragment extends Fragment implements SwipeRefreshLayout.OnR
                     TransactionsResponse.TransactionItem latestTx = Collections.min(temp, new TransactionComparator.MinConfirmationSort());
                     latestTransactionHeight = latestTx.getHeight() + 1;
                 }
-                if(getActivity() == null){
+                if (getActivity() == null) {
                     return;
                 }
                 getActivity().runOnUiThread(new Runnable() {
@@ -303,7 +309,7 @@ public class OverviewFragment extends Fragment implements SwipeRefreshLayout.OnR
                     }
                 });
             }
-        }catch (Exception e){
+        } catch (Exception e) {
             e.printStackTrace();
         }
         if(transactionList.size() == 0){
@@ -327,7 +333,7 @@ public class OverviewFragment extends Fragment implements SwipeRefreshLayout.OnR
             getContext().registerReceiver(receiver, filter);
         }
         isForeground = true;
-        if(needsUpdate){
+        if (needsUpdate) {
             needsUpdate = false;
             prepareHistoryData();
         }
@@ -344,7 +350,7 @@ public class OverviewFragment extends Fragment implements SwipeRefreshLayout.OnR
 
     @Override
     public void onResult(final String json) {
-        if(getActivity() == null){
+        if (getActivity() == null) {
             return;
         }
         getActivity().runOnUiThread(new Runnable() {

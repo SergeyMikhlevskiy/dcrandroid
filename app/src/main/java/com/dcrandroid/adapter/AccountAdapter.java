@@ -3,6 +3,7 @@ package com.dcrandroid.adapter;
 import android.content.Context;
 import android.graphics.Color;
 import android.graphics.drawable.AnimationDrawable;
+import android.graphics.drawable.AnimationDrawable;
 import android.support.annotation.NonNull;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.SwitchCompat;
@@ -18,6 +19,7 @@ import com.dcrandroid.R;
 import com.dcrandroid.data.Balance;
 import com.dcrandroid.data.Constants;
 import com.dcrandroid.util.CoinFormat;
+import com.dcrandroid.util.DcrConstants;
 import com.dcrandroid.util.DcrConstants;
 import com.dcrandroid.util.PreferenceUtil;
 import com.dcrandroid.util.Utils;
@@ -127,8 +129,8 @@ public class AccountAdapter extends RecyclerView.Adapter<AccountAdapter.MyViewHo
 
         // Balance
         if(DcrConstants.getInstance().synced) {
-            holder.spendable.setText(CoinFormat.Companion.format(Utils.formatDecred(balance.getSpendable())));
-            holder.total.setText(CoinFormat.Companion.format(balance.getTotal()));
+            holder.spendable.setText(CoinFormat.Companion.format(Utils.formatToUsaStandard(balance.getSpendable())));
+            holder.total.setText(CoinFormat.Companion.format(Utils.formatToUsaStandard(balance.getTotal())));
             holder.immatureRewards.setText(CoinFormat.Companion.format(balance.getImmatureReward()));
             holder.lockedByTickets.setText(CoinFormat.Companion.format(balance.getLockedByTickets()));
             holder.votingAuthority.setText(CoinFormat.Companion.format(balance.getVotingAuthority()));
