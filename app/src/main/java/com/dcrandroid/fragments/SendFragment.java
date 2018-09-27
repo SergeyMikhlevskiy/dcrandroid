@@ -590,7 +590,7 @@ public class SendFragment extends android.support.v4.app.Fragment implements Ada
 
                     if(returnString.startsWith("decred:"))
                         returnString = returnString.replace("decred:","");
-                
+
                     if(returnString.length() < 25){
                         Toast.makeText(SendFragment.this.getContext(), R.string.wallet_add_too_short, Toast.LENGTH_SHORT).show();
                         return;

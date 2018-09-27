@@ -27,6 +27,7 @@ android {
 }
 
 dependencies {
+
     compile fileTree(include: ['*.jar', '*.aar'], dir: 'libs')
 
     // Android support library

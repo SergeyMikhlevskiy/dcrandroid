@@ -227,7 +227,7 @@
     <string name="tap_this_to_copy_raw_transaction_hex">Tap this to copy raw transaction hex</string>
     <string name="tap_this_to_copy_transaction_hash">Tap this to copy transaction hash</string>
     <string name="copy_hash">Copy Hash</string>
-    
+
     <string-array name="history_transaction_list">
         <item>All</item>
         <item>Regular</item>
@@ -383,3 +383,4 @@
     <!--/Send Fragment-->
 
 </resources>
+
