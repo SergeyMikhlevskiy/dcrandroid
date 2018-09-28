@@ -22,6 +22,7 @@ import java.math.BigInteger;
 import java.math.MathContext;
 import java.math.RoundingMode;
 import java.text.DecimalFormat;
+import java.text.NumberFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Calendar;
@@ -243,6 +244,13 @@ public class Utils {
         DecimalFormat format = new DecimalFormat();
         format.applyPattern("#,###,###,##0.########");
         return format.format(dcr);
+    }
+    public static String formatToUsaStandard(long dcr) {
+        double convertedDcr = Mobilewallet.amountCoin(dcr);
+        NumberFormat nf = NumberFormat.getNumberInstance(Locale.US);
+        DecimalFormat df = (DecimalFormat) nf;
+        df.applyPattern("#,###,###,##0.########");
+        return df.format(convertedDcr);
     }
 
     public static String formatDecredWithoutComma(long dcr){

@@ -50,6 +50,7 @@
                     android:layout_height="50dp"
                     android:id="@+id/iv_sync_indicator"
                     />
+
             </LinearLayout>
 
             <LinearLayout
