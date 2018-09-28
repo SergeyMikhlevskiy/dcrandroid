@@ -11,6 +11,7 @@ import android.support.v7.widget.DefaultItemAnimator;
 import android.support.v7.widget.DividerItemDecoration;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
+import android.util.Log;
 import android.util.TypedValue;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -25,7 +26,6 @@ import com.dcrandroid.R;
 
 import com.dcrandroid.data.Account;
 import com.dcrandroid.data.Constants;
-import com.dcrandroid.data.Transaction;
 import com.dcrandroid.util.CoinFormat;
 import com.dcrandroid.util.DcrConstants;
 import com.dcrandroid.util.PreferenceUtil;
@@ -44,12 +44,15 @@ import java.util.Collections;
 import java.util.List;
 
 import mobilewallet.GetTransactionsResponse;
+import mobilewallet.Mobilewallet;
 
 /**
  * Created by Macsleven on 28/11/2017.
  */
 
 public class OverviewFragment extends Fragment implements SwipeRefreshLayout.OnRefreshListener, GetTransactionsResponse {
+
+    public static final String OVERVIEW_FRAGMENT = "OverviewFragment";
 
     private List<TransactionsResponse.TransactionItem> transactionList = new ArrayList<>();
     private TextView tvBalance;
@@ -193,7 +196,7 @@ public class OverviewFragment extends Fragment implements SwipeRefreshLayout.OnR
                     getActivity().runOnUiThread(new Runnable() {
                         @Override
                         public void run() {
-                            tvBalance.setText(CoinFormat.Companion.format(Utils.formatDecred(finalTotalBalance) + " DCR"));
+                            tvBalance.setText(CoinFormat.Companion.format(Utils.formatToUsaStandard(finalTotalBalance) + " DCR"));
                         }
                     });
                 }catch (Exception e){

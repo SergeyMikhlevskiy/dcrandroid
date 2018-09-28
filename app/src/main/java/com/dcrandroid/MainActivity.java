@@ -220,7 +220,7 @@ public class MainActivity extends AppCompatActivity implements TransactionListen
             for(int i = 0; i < accounts.size(); i++){
                 walletBalance += accounts.get(i).getBalance().getTotal();
             }
-            totalBalance.setText(CoinFormat.Companion.format(Utils.formatDecred(walletBalance) + " DCR"));
+            totalBalance.setText(CoinFormat.Companion.format(Utils.formatToUsaStandard(walletBalance) + " DCR"));
         }catch (Exception e){
             e.printStackTrace();
         }

@@ -49,6 +49,7 @@ public class TransactionDetailsActivity extends AppCompatActivity {
     private String transactionType, txHash, rawTx;
     private Bundle extras;
 
+
     private void restartApp() {
         PackageManager packageManager = getPackageManager();
         Intent intent = packageManager.getLaunchIntentForPackage(getPackageName());
@@ -138,8 +139,8 @@ public class TransactionDetailsActivity extends AppCompatActivity {
         tvHash.setText(txHash);
         //DcrConstants.getInstance().wallet.getTransaction(txHash.getBytes());
 
-        value.setText(CoinFormat.Companion.format(Utils.removeTrailingZeros(Mobilewallet.amountCoin(extras.getLong(Constants.AMOUNT, 0))) + " " + getString(R.string.dcr)));
-        transactionFee.setText(CoinFormat.Companion.format(Utils.removeTrailingZeros(Mobilewallet.amountCoin(extras.getLong(Constants.FEE, 0))) + " " + getString(R.string.dcr)));
+        value.setText(CoinFormat.Companion.format(Utils.formatToUsaStandard(extras.getLong(Constants.AMOUNT, 0)) + " " + getString(R.string.dcr)));
+        transactionFee.setText(CoinFormat.Companion.format(Utils.formatToUsaStandard(extras.getLong(Constants.FEE, 0)) + " " + getString(R.string.dcr)));
 
         Calendar calendar = new GregorianCalendar(TimeZone.getDefault());
         calendar.setTimeInMillis(extras.getLong(Constants.TIMESTAMP) * 1000);

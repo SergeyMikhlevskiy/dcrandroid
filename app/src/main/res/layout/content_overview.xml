@@ -41,9 +41,9 @@
                     android:layout_height="wrap_content"
                     android:layout_gravity="center"
                     android:textColor="@color/auth_text_color"
-                    android:textSize="22sp"
-                    app:fontFamily="@font/inconsolata_regular_family"
-                    tools:text="test text" />
+                    android:textSize="20sp"
+                    android:fontFamily="@font/source_sans_pro_regular"
+                    tools:text="1,345.3454334" />
 
             </LinearLayout>
 
