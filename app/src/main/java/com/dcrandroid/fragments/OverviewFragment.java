@@ -80,7 +80,7 @@ public class OverviewFragment extends Fragment implements SwipeRefreshLayout.OnR
     @Nullable
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
-        if(getContext() == null){
+        if (getContext() == null) {
             return null;
         }
         util = new PreferenceUtil(getContext());
@@ -116,7 +116,7 @@ public class OverviewFragment extends Fragment implements SwipeRefreshLayout.OnR
         RecyclerView.LayoutManager mLayoutManager = new LinearLayoutManager(rootView.getContext());
         recyclerView.setLayoutManager(mLayoutManager);
         recyclerView.setItemAnimator(new DefaultItemAnimator());
-        recyclerView.addItemDecoration(new DividerItemDecoration( getContext(), LinearLayoutManager.VERTICAL));
+        recyclerView.addItemDecoration(new DividerItemDecoration(getContext(), LinearLayoutManager.VERTICAL));
         recyclerView.addOnItemTouchListener(new RecyclerTouchListener(getContext(), recyclerView, new RecyclerTouchListener.ClickListener() {
             @Override
             public void onClick(View view, int position) {
@@ -147,11 +147,11 @@ public class OverviewFragment extends Fragment implements SwipeRefreshLayout.OnR
 
             }
         }));
-        TextView showHistory= rootView.findViewById(R.id.show_history);
+        TextView showHistory = rootView.findViewById(R.id.show_history);
         showHistory.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                if (getActivity() != null && getActivity() instanceof MainActivity){
+                if (getActivity() != null && getActivity() instanceof MainActivity) {
                     MainActivity mainActivity = (MainActivity) getActivity();
                     mainActivity.displayHistory();
                 }
@@ -166,17 +166,18 @@ public class OverviewFragment extends Fragment implements SwipeRefreshLayout.OnR
                     recyclerViewHeight = recyclerView.getHeight();
                     if (recyclerViewHeight != 0)
                         prepareHistoryData();
-                        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN) {
-                            recyclerView.getViewTreeObserver().removeOnGlobalLayoutListener(this);
-                        }else{
-                            recyclerView.getViewTreeObserver().removeGlobalOnLayoutListener(this);
-                        }
+                    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN) {
+                        recyclerView.getViewTreeObserver().removeOnGlobalLayoutListener(this);
+                    } else {
+                        recyclerView.getViewTreeObserver().removeGlobalOnLayoutListener(this);
+                    }
                 }
             });
         }
 
         recyclerView.setAdapter(transactionAdapter);
         registerForContextMenu(recyclerView);
+
         return rootView;
     }
 
@@ -184,13 +185,14 @@ public class OverviewFragment extends Fragment implements SwipeRefreshLayout.OnR
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
         //you can set the title for your toolbar here for different fragments different titles
-        if (getActivity() != null){
+        if (getActivity() != null) {
             getActivity().setTitle(getString(R.string.overview));
         }
     }
 
-    private int getMaxDisplayItems(){
-        if(getActivity() == null){
+
+    private int getMaxDisplayItems() {
+        if (getActivity() == null) {
             return 0;
         }
         int px = Math.round(TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, 52, getActivity().getResources().getDisplayMetrics()));
@@ -205,19 +207,19 @@ public class OverviewFragment extends Fragment implements SwipeRefreshLayout.OnR
         new Thread(){
             public void run(){
                 try {
-                    if(getContext() == null){
+                    if (getContext() == null) {
                         return;
                     }
                     final List<Account> accounts = Account.parse(constants.wallet.getAccounts(util.getBoolean(Constants.SPEND_UNCONFIRMED_FUNDS) ? 0 : Constants.REQUIRED_CONFIRMATIONS));
                     long totalBalance = 0;
-                    for(int i = 0; i < accounts.size(); i++){
-                        if(util.getBoolean(Constants.HIDE_WALLET + accounts.get(i).getAccountNumber())){
+                    for (int i = 0; i < accounts.size(); i++) {
+                        if (util.getBoolean(Constants.HIDE_WALLET + accounts.get(i).getAccountNumber())) {
                             continue;
                         }
                         totalBalance += accounts.get(i).getBalance().getTotal();
                     }
                     final long finalTotalBalance = totalBalance;
-                    if(getActivity() == null){
+                    if (getActivity() == null) {
                         return;
                     }
                     getActivity().runOnUiThread(new Runnable() {
@@ -226,19 +228,19 @@ public class OverviewFragment extends Fragment implements SwipeRefreshLayout.OnR
                             tvBalance.setText(CoinFormat.Companion.format(Utils.formatToUsaStandard(finalTotalBalance) + " DCR"));
                         }
                     });
-                }catch (Exception e){
+                } catch (Exception e) {
                     e.printStackTrace();
                 }
             }
         }.start();
     }
 
-    public void prepareHistoryData(){
-        if(!isForeground){
+    public void prepareHistoryData() {
+        if (!isForeground) {
             needsUpdate = true;
             return;
         }
-        if(getActivity() == null){
+        if (getActivity() == null) {
             return;
         }
         getActivity().runOnUiThread(new Runnable() {
@@ -266,29 +268,29 @@ public class OverviewFragment extends Fragment implements SwipeRefreshLayout.OnR
         }.start();
     }
 
-    public void saveTransactions(ArrayList<TransactionsResponse.TransactionItem> transactions){
+    public void saveTransactions(ArrayList<TransactionsResponse.TransactionItem> transactions) {
         try {
-            File path = new File(getContext().getFilesDir()+"/savedata/");
+            File path = new File(getContext().getFilesDir() + "/savedata/");
             path.mkdirs();
-            File file = new File(getContext().getFilesDir()+"/savedata/transactions");
+            File file = new File(getContext().getFilesDir() + "/savedata/transactions");
             file.createNewFile();
             ObjectOutputStream objectOutputStream = new ObjectOutputStream(new FileOutputStream(file));
             objectOutputStream.writeObject(transactions);
             objectOutputStream.close();
-        }catch (Exception e){
+        } catch (Exception e) {
             e.printStackTrace();
         }
     }
 
-    public void loadTransactions(){
+    public void loadTransactions() {
         try {
-            File path = new File(getContext().getFilesDir()+"/savedata/");
+            File path = new File(getContext().getFilesDir() + "/savedata/");
             path.mkdirs();
             File file = new File(path, "transactions");
             if(file.exists()){
                 ObjectInputStream objectInputStream = new ObjectInputStream(new FileInputStream(file));
                 ArrayList<TransactionsResponse.TransactionItem> temp = (ArrayList<TransactionsResponse.TransactionItem>) objectInputStream.readObject();
-                if(temp.size() > 0) {
+                if (temp.size() > 0) {
                     if (temp.size() > getMaxDisplayItems()) {
                         transactionList.addAll(temp.subList(0, getMaxDisplayItems()));
                     } else {
@@ -297,7 +299,7 @@ public class OverviewFragment extends Fragment implements SwipeRefreshLayout.OnR
                     TransactionsResponse.TransactionItem latestTx = Collections.min(temp, new TransactionComparator.MinConfirmationSort());
                     latestTransactionHeight = latestTx.getHeight() + 1;
                 }
-                if(getActivity() == null){
+                if (getActivity() == null) {
                     return;
                 }
                 getActivity().runOnUiThread(new Runnable() {
@@ -307,7 +309,7 @@ public class OverviewFragment extends Fragment implements SwipeRefreshLayout.OnR
                     }
                 });
             }
-        }catch (Exception e){
+        } catch (Exception e) {
             e.printStackTrace();
         }
         if(transactionList.size() == 0){
@@ -331,7 +333,7 @@ public class OverviewFragment extends Fragment implements SwipeRefreshLayout.OnR
             getContext().registerReceiver(receiver, filter);
         }
         isForeground = true;
-        if(needsUpdate){
+        if (needsUpdate) {
             needsUpdate = false;
             prepareHistoryData();
         }
@@ -348,7 +350,7 @@ public class OverviewFragment extends Fragment implements SwipeRefreshLayout.OnR
 
     @Override
     public void onResult(final String json) {
-        if(getActivity() == null){
+        if (getActivity() == null) {
             return;
         }
         getActivity().runOnUiThread(new Runnable() {
@@ -357,10 +359,10 @@ public class OverviewFragment extends Fragment implements SwipeRefreshLayout.OnR
                 TransactionsResponse response = TransactionsResponse.parse(json);
                 if(response.transactions.size() == 0){
                     recyclerView.setVisibility(View.GONE);
-                    if(swipeRefreshLayout.isRefreshing()){
+                    if (swipeRefreshLayout.isRefreshing()) {
                         swipeRefreshLayout.setRefreshing(false);
                     }
-                }else{
+                } else {
                     ArrayList<TransactionsResponse.TransactionItem> transactions = response.transactions;
                     Collections.sort(transactions, new TransactionComparator.TimestampSort());
                     TransactionsResponse.TransactionItem latestTx = Collections.min(transactions, new TransactionComparator.MinConfirmationSort());
@@ -369,12 +371,12 @@ public class OverviewFragment extends Fragment implements SwipeRefreshLayout.OnR
                     if (transactions.size() > 0) {
                         if (transactions.size() > getMaxDisplayItems()) {
                             transactionList.addAll(transactions.subList(0, getMaxDisplayItems()));
-                        }else{
+                        } else {
                             transactionList.addAll(transactions);
                         }
                     }
                     recyclerView.setVisibility(View.VISIBLE);
-                    if(swipeRefreshLayout.isRefreshing()){
+                    if (swipeRefreshLayout.isRefreshing()) {
                         swipeRefreshLayout.setRefreshing(false);
                     }
                     transactionAdapter.notifyDataSetChanged();
@@ -384,10 +386,10 @@ public class OverviewFragment extends Fragment implements SwipeRefreshLayout.OnR
         });
     }
 
-    public void newTransaction(TransactionsResponse.TransactionItem transaction){
+    public void newTransaction(TransactionsResponse.TransactionItem transaction) {
         transaction.animate = true;
         transactionList.add(0, transaction);
-        if(transactionList.size() > getMaxDisplayItems()){
+        if (transactionList.size() > getMaxDisplayItems()) {
             transactionList.remove(transactionList.size() - 1);
         }
         latestTransactionHeight = transaction.getHeight() + 1;
@@ -400,9 +402,9 @@ public class OverviewFragment extends Fragment implements SwipeRefreshLayout.OnR
         getBalance();
     }
 
-    public void transactionConfirmed(String hash, int height){
-        for(int i = 0; i < transactionList.size(); i++){
-            if(transactionList.get(i).hash.equals(hash)){
+    public void transactionConfirmed(String hash, int height) {
+        for (int i = 0; i < transactionList.size(); i++) {
+            if (transactionList.get(i).hash.equals(hash)) {
                 TransactionsResponse.TransactionItem transaction = transactionList.get(i);
                 transaction.height = height;
                 latestTransactionHeight = transaction.getHeight() + 1;
@@ -414,11 +416,11 @@ public class OverviewFragment extends Fragment implements SwipeRefreshLayout.OnR
         getBalance();
     }
 
-    public void blockAttached(int height){
-        if((height - latestTransactionHeight) < 2){
-            for(int i = 0; i < transactionList.size(); i++){
+    public void blockAttached(int height) {
+        if ((height - latestTransactionHeight) < 2) {
+            for (int i = 0; i < transactionList.size(); i++) {
                 TransactionsResponse.TransactionItem tx = transactionList.get(i);
-                if((height - tx.getHeight()) >= 2){
+                if ((height - tx.getHeight()) >= 2) {
                     continue;
                 }
                 tx.animate = true;

@@ -205,7 +205,6 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_below="@+id/separator17"
-
                 android:fontFamily="@font/source_sans_pro_regular"
                 android:padding="8dp"
                 android:text="@string/confirmations"
@@ -304,8 +303,34 @@
                 android:layout_height="1px"
                 android:background="@color/primary_text" />
 
-            <ExpandableListView
-                android:id="@+id/in_out"
+            <!--<TextView-->
+                <!--android:id="@+id/tvInput"-->
+                <!--android:layout_width="wrap_content"-->
+                <!--android:layout_height="wrap_content"-->
+                <!--android:fontFamily="@font/source_sans_pro_regular"-->
+                <!--android:padding="8dp"-->
+                <!--android:text="@string/inputs"-->
+                <!--android:textColor="@color/auth_text_color"-->
+                <!--android:textSize="16sp" />-->
+
+            <ListView
+                android:id="@+id/lvInput"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:divider="@color/primary_text"
+                android:dividerHeight="0.5dp" />
+            <!--<TextView-->
+                <!--android:id="@+id/tvOutput"-->
+                <!--android:layout_width="wrap_content"-->
+                <!--android:layout_height="wrap_content"-->
+                <!--android:fontFamily="@font/source_sans_pro_regular"-->
+                <!--android:padding="8dp"-->
+                <!--android:text="@string/confirmations"-->
+                <!--android:textColor="@color/auth_text_color"-->
+                <!--android:textSize="16sp" />-->
+
+            <ListView
+                android:id="@+id/lvOutput"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:divider="@color/primary_text"

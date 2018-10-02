@@ -4,6 +4,7 @@ import android.content.Context;
 import android.graphics.Color;
 import android.os.Bundle;
 import android.support.v7.widget.RecyclerView;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -28,6 +29,8 @@ import java.util.TimeZone;
 
 import mobilewallet.Mobilewallet;
 
+import static com.dcrandroid.fragments.OverviewFragment.OVERVIEW_FRAGMENT;
+
 /**
  * Created by Macsleven on 01/01/2018.
  */
@@ -46,6 +49,7 @@ public class TransactionAdapter extends RecyclerView.Adapter<TransactionAdapter.
         private TextView minus;
         private View view;
         private TextView tvDateOfTransaction;
+
         public MyViewHolder(View view) {
             super(view);
             Amount = view.findViewById(R.id.history_amount_transferred);
@@ -66,20 +70,20 @@ public class TransactionAdapter extends RecyclerView.Adapter<TransactionAdapter.
 
     @Override
     public MyViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
-        View itemView =layoutInflater.inflate(R.layout.history_list_row, parent, false);
+        View itemView = layoutInflater.inflate(R.layout.history_list_row, parent, false);
         return new TransactionAdapter.MyViewHolder(itemView);
     }
 
     @Override
     public void onBindViewHolder(MyViewHolder holder, int position) {
-        if(position > historyList.size() - 1){
+        if (position > historyList.size() - 1) {
             return;
         }
         TransactionItem history = historyList.get(position);
 
         int confirmations = DcrConstants.getInstance().wallet.getBestBlock() - history.getHeight();
         confirmations += 1;
-        if(history.getHeight() == -1){
+        if (history.getHeight() == -1) {
             //No included in block chain, therefore transaction is pending
             holder.status.setTextColor(Color.parseColor("#3d659c"));
             holder.status.setText(context.getString(R.string.pending));
@@ -93,29 +97,29 @@ public class TransactionAdapter extends RecyclerView.Adapter<TransactionAdapter.
             }
         }
 
-        if(history.animate) {
+        if (history.animate) {
             Animation blinkAnim = AnimationUtils.loadAnimation(holder.view.getContext(), R.anim.anim_blink);
             holder.view.setAnimation(blinkAnim);
         }
 
         Calendar calendar = new GregorianCalendar(TimeZone.getDefault());
-        calendar.setTimeInMillis(history.timestamp);
+        calendar.setTimeInMillis(history.timestamp * 1000);
         SimpleDateFormat sdf = new SimpleDateFormat(" dd yyyy, hh:mma", Locale.getDefault());
 
         holder.tvDateOfTransaction.setText(calendar.getDisplayName(Calendar.MONTH, Calendar.SHORT, Locale.getDefault()) + sdf.format(calendar.getTime()).toLowerCase());
 
         String strAmount = Utils.formatToUsaStandard(history.getAmount());
 
-        holder.Amount.setText(CoinFormat.Companion.format( strAmount + Constants.NBSP + layoutInflater.getContext().getString(R.string.dcr)));
+        holder.Amount.setText(CoinFormat.Companion.format(strAmount + Constants.NBSP + layoutInflater.getContext().getString(R.string.dcr)));
         holder.txType.setText("");
 
-        if(history.getDirection() == 0){
+        if (history.getDirection() == 0) {
             holder.minus.setVisibility(View.VISIBLE);
             holder.txType.setBackgroundResource(R.drawable.ic_send);
-        }else if(history.getDirection() == 1) {
+        } else if (history.getDirection() == 1) {
             holder.minus.setVisibility(View.INVISIBLE);
             holder.txType.setBackgroundResource(R.drawable.ic_receive);
-        }else if(history.getDirection() == 2){
+        } else if (history.getDirection() == 2) {
             holder.minus.setVisibility(View.INVISIBLE);
             holder.txType.setBackgroundResource(R.drawable.ic_tx_transferred);
         }

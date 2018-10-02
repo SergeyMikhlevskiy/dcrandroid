@@ -7,14 +7,16 @@ import android.graphics.Color;
 import android.net.Uri;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
+import android.text.style.RelativeSizeSpan;
+import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
-import android.widget.AdapterView;
-import android.widget.ExpandableListView;
+import android.view.ViewGroup;
+import android.widget.ArrayAdapter;
+import android.widget.ListView;
 import android.widget.TextView;
 
-import com.dcrandroid.adapter.ExpandableListViewAdapter;
 import com.dcrandroid.R;
 import com.dcrandroid.util.CoinFormat;
 import com.dcrandroid.util.DcrConstants;
@@ -30,8 +32,6 @@ import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.GregorianCalendar;
-import java.util.HashMap;
-import java.util.List;
 import java.util.Locale;
 import java.util.TimeZone;
 
@@ -44,11 +44,11 @@ import mobilewallet.Mobilewallet;
 
 public class TransactionDetailsActivity extends AppCompatActivity {
 
-    private ExpandableListView expandableListView;
+    private ListView lvInput, lvOutput;
     private PreferenceUtil util;
     private String transactionType, txHash, rawTx;
     private Bundle extras;
-
+    private float textSize16;
 
     private void restartApp() {
         PackageManager packageManager = getPackageManager();
@@ -59,6 +59,12 @@ public class TransactionDetailsActivity extends AppCompatActivity {
             startActivity(mainIntent);
             Runtime.getRuntime().exit(0);
         }
+    }
+
+    @Override
+    public boolean onSupportNavigateUp() {
+        finish();
+        return true;
     }
 
     @Override
@@ -77,7 +83,8 @@ public class TransactionDetailsActivity extends AppCompatActivity {
             return;
         }
 
-        expandableListView = findViewById(R.id.in_out);
+        lvInput = findViewById(R.id.lvInput);
+        lvOutput = findViewById(R.id.lvOutput);
 
         transactionType = extras.getString(Constants.TYPE);
         transactionType = transactionType.substring(0, 1).toUpperCase() + transactionType.substring(1).toLowerCase();
@@ -113,25 +120,25 @@ public class TransactionDetailsActivity extends AppCompatActivity {
             }
         });
 
-        expandableListView.setOnItemLongClickListener(new AdapterView.OnItemLongClickListener() {
-            @Override
-            public boolean onItemLongClick(AdapterView<?> parent, View view, int position, long id) {
-
-                long packedPosition = expandableListView.getExpandableListPosition(position);
-
-                int itemType = ExpandableListView.getPackedPositionType(packedPosition);
-                int groupPosition = ExpandableListView.getPackedPositionGroup(packedPosition);
-                int childPosition = ExpandableListView.getPackedPositionChild(packedPosition);
-                if (itemType == ExpandableListView.PACKED_POSITION_TYPE_CHILD) {
-                    if (groupPosition == 1) {
-                        String[] temp = expandableListView.getExpandableListAdapter().getChild(1, childPosition).toString().split("\\n");
-                        String hash = temp[0];
-                        Utils.copyToClipboard(TransactionDetailsActivity.this, hash, getString(R.string.address_copy_text));
-                    }
-                }
-                return true;
-            }
-        });
+//        lvInput.setOnItemLongClickListener(new AdapterView.OnItemLongClickListener() {
+//            @Override
+//            public boolean onItemLongClick(AdapterView<?> parent, View view, int position, long id) {
+//
+//                long packedPosition = lvInput.getExpandableListPosition(position);
+//
+//                int itemType = ExpandableListView.getPackedPositionType(packedPosition);
+//                int groupPosition = ExpandableListView.getPackedPositionGroup(packedPosition);
+//                int childPosition = ExpandableListView.getPackedPositionChild(packedPosition);
+//                if (itemType == ExpandableListView.PACKED_POSITION_TYPE_CHILD) {
+//                    if (groupPosition == 1) {
+//                        String[] temp = lvInput.getExpandableListAdapter().getChild(1, childPosition).toString().split("\\n");
+//                        String hash = temp[0];
+//                        Utils.copyToClipboard(TransactionDetailsActivity.this, hash, getString(R.string.address_copy_text));
+//                    }
+//                }
+//                return true;
+//            }
+//        });
 
         rawTx = extras.getString(Constants.RAW);
 
@@ -169,6 +176,9 @@ public class TransactionDetailsActivity extends AppCompatActivity {
                 status.setText(R.string.pending);
             }
         }
+        getSupportActionBar().setDisplayHomeAsUpEnabled(true);
+
+        textSize16 = new RelativeSizeSpan(16F).getSizeChange();
     }
 
     private void loadInOut(ArrayList<TransactionsResponse.TransactionInput> usedInput, ArrayList<TransactionsResponse.TransactionOutput> usedOutput) {
@@ -235,19 +245,29 @@ public class TransactionDetailsActivity extends AppCompatActivity {
             e.printStackTrace();
         }
 
-        List<String> headerTitle = new ArrayList<>();
+//        List<String> headerTitle = new ArrayList<>();
+//
+//        headerTitle.add("Inputs");
+//        headerTitle.add("Outputs");
+//
+//        HashMap<String, List<String>> childContent = new HashMap<>();
+//
+//        childContent.put(headerTitle.get(0), walletInput);
+//        childContent.put(headerTitle.get(1), walletOutput);
 
-        headerTitle.add(Constants.INPUTS);
-        headerTitle.add(Constants.OUTPUTS);
+        ArrayAdapter<String> inputAdapter = new ArrayAdapter<>(getApplicationContext(), android.R.layout.simple_list_item_1, walletInput);
+        ArrayAdapter<String> outputAdapter = new ArrayAdapter<>(getApplicationContext(), android.R.layout.simple_list_item_1, walletOutput);
 
-        HashMap<String, List<String>> childContent = new HashMap<>();
+        LayoutInflater inflater = getLayoutInflater();
+        ViewGroup inputHeader = (ViewGroup)inflater.inflate(R.layout.transaction_input_header, lvInput);
+        lvInput.addHeaderView(inputHeader);
 
-        childContent.put(headerTitle.get(0), walletInput);
-        childContent.put(headerTitle.get(1), walletOutput);
+        ViewGroup outputHeader = (ViewGroup)inflater.inflate(R.layout.transaction_output_header, lvInput);
+        lvOutput.addHeaderView(outputHeader);
 
-        ExpandableListViewAdapter expandableListViewAdapter = new ExpandableListViewAdapter(getApplicationContext(), headerTitle, childContent);
-
-        expandableListView.setAdapter(expandableListViewAdapter);
+//        ExpandableListViewAdapter expandableListViewAdapter = new ExpandableListViewAdapter(getApplicationContext(), headerTitle, childContent);
+        lvOutput.setAdapter(outputAdapter);
+        lvInput.setAdapter(inputAdapter);
     }
 
     @Override
