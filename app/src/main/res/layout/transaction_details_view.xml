@@ -7,335 +7,362 @@
     android:layout_height="match_parent"
     android:orientation="vertical">
 
-    <LinearLayout
-        android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:orientation="vertical">
-
-        <RelativeLayout
+        <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginLeft="5dp"
-            android:layout_marginRight="5dp"
-            android:padding="8dp">
+            android:orientation="vertical">
 
-            <TextView
-                android:id="@+id/label_date"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:fontFamily="@font/source_sans_pro_regular"
-                android:paddingStart="8dp"
-                android:paddingLeft="8dp"
-                android:paddingTop="12dp"
-                android:paddingEnd="0dp"
-                android:paddingRight="0dp"
-                android:paddingBottom="8dp"
-                android:text="@string/date"
-                android:textColor="@color/auth_text_color"
-                android:textSize="16sp" />
-
-            <TextView
-                android:id="@+id/tx_date"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_alignParentEnd="true"
-                android:layout_alignParentRight="true"
-                android:layout_toEndOf="@+id/label_date"
-                android:layout_toRightOf="@+id/label_date"
-                android:fontFamily="@font/source_sans_pro_regular"
-                android:gravity="end"
-                android:padding="8dp"
-                android:textColor="@color/auth_text_color"
-                android:textSize="16sp"
-                tools:text="test text" />
-
-            <View
-                android:id="@+id/separator12"
-                android:layout_width="fill_parent"
-                android:layout_height="1dp"
-                android:layout_below="@+id/label_date"
-                android:background="@color/greyLight" />
-
-            <LinearLayout
-                android:id="@+id/status_tx_cont"
+            <RelativeLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_below="@+id/separator12"
-                android:orientation="horizontal">
+                android:layout_marginLeft="5dp"
+                android:layout_marginRight="5dp"
+                android:padding="8dp">
 
                 <TextView
-                    android:id="@+id/label_status"
-                    android:layout_width="0dp"
+                    android:id="@+id/label_date"
+                    android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:layout_weight="2"
                     android:fontFamily="@font/source_sans_pro_regular"
-                    android:padding="8dp"
-                    android:text="@string/status"
+                    android:paddingStart="8dp"
+                    android:paddingLeft="8dp"
+                    android:paddingTop="12dp"
+                    android:paddingEnd="0dp"
+                    android:paddingRight="0dp"
+                    android:paddingBottom="8dp"
+                    android:text="@string/date"
                     android:textColor="@color/auth_text_color"
                     android:textSize="16sp" />
 
                 <TextView
-                    android:id="@+id/tx_dts__status"
-                    android:layout_width="75dp"
+                    android:id="@+id/tx_date"
+                    android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:layout_gravity="center"
-                    android:background="@drawable/tx_status_confirmed"
+                    android:layout_alignParentEnd="true"
+                    android:layout_alignParentRight="true"
+                    android:layout_toEndOf="@+id/label_date"
+                    android:layout_toRightOf="@+id/label_date"
+                    android:fontFamily="@font/source_sans_pro_regular"
+                    android:gravity="end"
+                    android:padding="8dp"
+                    android:textColor="@color/auth_text_color"
+                    android:textSize="16sp"
+                    tools:text="test text" />
+
+                <View
+                    android:id="@+id/separator12"
+                    android:layout_width="fill_parent"
+                    android:layout_height="1dp"
+                    android:layout_below="@+id/label_date"
+                    android:background="@color/greyLight" />
+
+                <LinearLayout
+                    android:id="@+id/status_tx_cont"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_below="@+id/separator12"
+                    android:orientation="horizontal">
+
+                    <TextView
+                        android:id="@+id/label_status"
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="2"
+                        android:fontFamily="@font/source_sans_pro_regular"
+                        android:padding="8dp"
+                        android:text="@string/status"
+                        android:textColor="@color/auth_text_color"
+                        android:textSize="16sp" />
+
+                    <TextView
+                        android:id="@+id/tx_dts__status"
+                        android:layout_width="75dp"
+                        android:layout_height="wrap_content"
+                        android:layout_gravity="center"
+                        android:background="@drawable/tx_status_confirmed"
+                        android:gravity="center"
+                        android:padding="2dp"
+                        android:text="@string/confirmed"
+                        android:textColor="@color/greenBright" />
+                </LinearLayout>
+
+                <View
+                    android:id="@+id/separator1399"
+                    android:layout_width="fill_parent"
+                    android:layout_height="1dp"
+                    android:layout_below="@+id/status_tx_cont"
+                    android:background="@color/greyLight" />
+
+                <TextView
+                    android:id="@+id/label_amount"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_below="@id/separator1399"
+                    android:fontFamily="@font/source_sans_pro_regular"
+                    android:paddingStart="5dp"
+                    android:paddingLeft="5dp"
+                    android:paddingTop="8dp"
+
+                    android:paddingEnd="8dp"
+                    android:paddingRight="0dp"
+                    android:paddingBottom="8dp"
+                    android:text="@string/amount_dcr"
+                    android:textColor="@color/auth_text_color"
+                    android:textSize="16sp" />
+
+                <TextView
+                    android:id="@+id/tx_dts_value"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_below="@+id/separator1399"
+                    android:layout_alignParentEnd="true"
+                    android:layout_alignParentRight="true"
+                    android:layout_centerHorizontal="true"
+                    android:fontFamily="@font/source_sans_pro_regular"
                     android:gravity="center"
-                    android:padding="2dp"
-                    android:text="@string/confirmed"
-                    android:textColor="@color/greenBright" />
-            </LinearLayout>
+                    android:padding="8dp"
+                    android:text="@string/_0_dcr"
+                    android:textColor="@color/auth_text_color"
+                    android:textSize="14sp" />
 
-            <View
-                android:id="@+id/separator1399"
-                android:layout_width="fill_parent"
-                android:layout_height="1dp"
-                android:layout_below="@+id/status_tx_cont"
-                android:background="@color/greyLight" />
+                <View
+                    android:id="@+id/separator13"
+                    android:layout_width="fill_parent"
+                    android:layout_height="1dp"
+                    android:layout_below="@+id/tx_dts_value"
+                    android:background="@color/greyLight" />
 
-            <TextView
-                android:id="@+id/label_amount"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_below="@id/separator1399"
-                android:fontFamily="@font/source_sans_pro_regular"
-                android:paddingStart="5dp"
-                android:paddingLeft="5dp"
-                android:paddingTop="8dp"
+                <TextView
+                    android:id="@+id/label_tx_fee"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_below="@+id/separator13"
+                    android:fontFamily="@font/source_sans_pro_regular"
+                    android:padding="8dp"
 
-                android:paddingEnd="8dp"
-                android:paddingRight="0dp"
-                android:paddingBottom="8dp"
-                android:text="@string/amount_dcr"
-                android:textColor="@color/auth_text_color"
-                android:textSize="16sp" />
+                    android:text="@string/fee"
+                    android:textColor="@color/auth_text_color"
+                    android:textSize="16sp" />
 
-            <TextView
-                android:id="@+id/tx_dts_value"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_below="@+id/separator1399"
-                android:layout_alignParentEnd="true"
-                android:layout_alignParentRight="true"
-                android:layout_centerHorizontal="true"
-                android:fontFamily="@font/source_sans_pro_regular"
-                android:gravity="center"
-                android:padding="8dp"
-                android:text="@string/_0_dcr"
-                android:textColor="@color/auth_text_color"
-                android:textSize="14sp" />
+                <TextView
+                    android:id="@+id/tx_fee"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_below="@+id/separator13"
+                    android:layout_alignParentEnd="true"
+                    android:layout_alignParentRight="true"
+                    android:fontFamily="@font/source_sans_pro_regular"
+                    android:gravity="end"
+                    android:padding="8dp"
+                    android:text="@string/_0_dcr"
+                    android:textColor="@color/auth_text_color"
+                    android:textSize="14sp" />
 
-            <View
-                android:id="@+id/separator13"
-                android:layout_width="fill_parent"
-                android:layout_height="1dp"
-                android:layout_below="@+id/tx_dts_value"
-                android:background="@color/greyLight" />
+                <View
+                    android:id="@+id/separator21"
+                    android:layout_width="fill_parent"
+                    android:layout_height="1dp"
+                    android:layout_below="@+id/tx_fee"
+                    android:background="@color/greyLight" />
 
-            <TextView
-                android:id="@+id/label_tx_fee"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_below="@+id/separator13"
-                android:fontFamily="@font/source_sans_pro_regular"
-                android:padding="8dp"
+                <TextView
+                    android:id="@+id/label_txtype"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_below="@+id/separator21"
+                    android:fontFamily="@font/source_sans_pro_regular"
 
-                android:text="@string/fee"
-                android:textColor="@color/auth_text_color"
-                android:textSize="16sp" />
+                    android:padding="8dp"
+                    android:text="@string/TxType"
+                    android:textColor="@color/auth_text_color"
+                    android:textSize="16sp" />
 
-            <TextView
-                android:id="@+id/tx_fee"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_below="@+id/separator13"
-                android:layout_alignParentEnd="true"
-                android:layout_alignParentRight="true"
-                android:fontFamily="@font/source_sans_pro_regular"
-                android:gravity="end"
-                android:padding="8dp"
-                android:text="@string/_0_dcr"
-                android:textColor="@color/auth_text_color"
-                android:textSize="14sp" />
+                <TextView
+                    android:id="@+id/txtype"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_below="@+id/separator21"
+                    android:layout_alignParentEnd="true"
 
-            <View
-                android:id="@+id/separator21"
-                android:layout_width="fill_parent"
-                android:layout_height="1dp"
-                android:layout_below="@+id/tx_fee"
-                android:background="@color/greyLight" />
+                    android:layout_alignParentRight="true"
+                    android:layout_toEndOf="@+id/label_txtype"
+                    android:layout_toRightOf="@+id/label_txtype"
+                    android:fontFamily="@font/source_sans_pro_regular"
+                    android:gravity="end"
+                    android:padding="8dp"
+                    android:textAllCaps="false"
+                    android:textColor="@color/auth_text_color"
+                    android:textSize="16sp"
+                    tools:text="test text" />
 
-            <TextView
-                android:id="@+id/label_txtype"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_below="@+id/separator21"
-                android:fontFamily="@font/source_sans_pro_regular"
+                <View
+                    android:id="@+id/separator17"
+                    android:layout_width="fill_parent"
+                    android:layout_height="1dp"
+                    android:layout_below="@+id/txtype"
+                    android:background="@color/greyLight" />
 
-                android:padding="8dp"
-                android:text="@string/TxType"
-                android:textColor="@color/auth_text_color"
-                android:textSize="16sp" />
+                <TextView
+                    android:id="@+id/label_confirmation"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_below="@+id/separator17"
+                    android:fontFamily="@font/source_sans_pro_regular"
+                    android:padding="8dp"
+                    android:text="@string/confirmations"
+                    android:textColor="@color/auth_text_color"
+                    android:textSize="16sp" />
 
-            <TextView
-                android:id="@+id/txtype"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_below="@+id/separator21"
-                android:layout_alignParentEnd="true"
+                <TextView
+                    android:id="@+id/tx_dts_confirmation"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_below="@+id/separator17"
+                    android:layout_alignParentEnd="true"
+                    android:layout_alignParentRight="true"
+                    android:layout_toEndOf="@id/label_confirmation"
+                    android:layout_toRightOf="@id/label_confirmation"
+                    android:fontFamily="@font/source_sans_pro_regular"
+                    android:gravity="end"
+                    android:padding="8dp"
+                    android:textColor="@color/auth_text_color"
+                    android:textSize="16sp"
+                    tools:text="test text" />
 
-                android:layout_alignParentRight="true"
-                android:layout_toEndOf="@+id/label_txtype"
-                android:layout_toRightOf="@+id/label_txtype"
-                android:fontFamily="@font/source_sans_pro_regular"
-                android:gravity="end"
-                android:padding="8dp"
-                android:textAllCaps="false"
-                android:textColor="@color/auth_text_color"
-                android:textSize="16sp"
-                tools:text="test text" />
+                <View
+                    android:id="@+id/separator1235"
+                    android:layout_width="fill_parent"
+                    android:layout_height="1dp"
+                    android:layout_below="@+id/tx_dts_confirmation"
+                    android:background="@color/greyLight" />
 
-            <View
-                android:id="@+id/separator17"
-                android:layout_width="fill_parent"
-                android:layout_height="1dp"
-                android:layout_below="@+id/txtype"
-                android:background="@color/greyLight" />
+                <TextView
+                    android:id="@+id/label_tx_hash"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_below="@id/separator1235"
+                    android:fontFamily="@font/source_sans_pro_regular"
+                    android:padding="8dp"
+                    android:text="@string/hash"
+                    android:textColor="@color/auth_text_color"
+                    android:textSize="16sp" />
 
-            <TextView
-                android:id="@+id/label_confirmation"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_below="@+id/separator17"
-                android:fontFamily="@font/source_sans_pro_regular"
-                android:padding="8dp"
-                android:text="@string/confirmations"
-                android:textColor="@color/auth_text_color"
-                android:textSize="16sp" />
+                <TextView
+                    android:id="@+id/tx_hash"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_below="@id/separator1235"
+                    android:layout_alignParentEnd="true"
+                    android:layout_alignParentRight="true"
+                    android:layout_marginStart="32dp"
+                    android:layout_marginLeft="32dp"
+                    android:layout_toEndOf="@id/label_tx_hash"
+                    android:layout_toRightOf="@id/label_tx_hash"
+                    android:ellipsize="middle"
+                    android:fontFamily="@font/source_sans_pro_regular"
+                    android:gravity="start"
+                    android:padding="8dp"
+                    android:paddingStart="32dp"
+                    android:paddingLeft="32dp"
+                    android:paddingEnd="0dp"
+                    android:paddingRight="0dp"
+                    android:singleLine="true"
+                    android:textColor="@color/buttonColor"
+                    android:textSize="16sp"
+                    tools:text="fxfxffxxfxfxfxfxfxfxfxfxfxfxfxfxfx" />
 
-            <TextView
-                android:id="@+id/tx_dts_confirmation"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_below="@+id/separator17"
-                android:layout_alignParentEnd="true"
-                android:layout_alignParentRight="true"
-                android:layout_toEndOf="@id/label_confirmation"
-                android:layout_toRightOf="@id/label_confirmation"
-                android:fontFamily="@font/source_sans_pro_regular"
-                android:gravity="end"
-                android:padding="8dp"
-                android:textColor="@color/auth_text_color"
-                android:textSize="16sp"
-                tools:text="test text" />
+                <View
+                    android:id="@+id/separator12355"
+                    android:layout_width="fill_parent"
+                    android:layout_height="1dp"
+                    android:layout_below="@id/tx_hash"
+                    android:background="@color/greyLight" />
 
-            <View
-                android:id="@+id/separator1235"
-                android:layout_width="fill_parent"
-                android:layout_height="1dp"
-                android:layout_below="@+id/tx_dts_confirmation"
-                android:background="@color/greyLight" />
-
-            <TextView
-                android:id="@+id/label_tx_hash"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_below="@id/separator1235"
-
-                android:fontFamily="@font/source_sans_pro_regular"
-                android:padding="8dp"
-                android:text="@string/hash"
-                android:textColor="@color/auth_text_color"
-                android:textSize="16sp" />
-
-            <TextView
-                android:id="@+id/tx_hash"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_below="@id/separator1235"
-                android:layout_alignParentEnd="true"
-                android:layout_alignParentRight="true"
-                android:layout_marginStart="32dp"
-                android:layout_marginLeft="32dp"
-                android:layout_toEndOf="@id/label_tx_hash"
-                android:layout_toRightOf="@id/label_tx_hash"
-                android:ellipsize="middle"
-                android:fontFamily="@font/source_sans_pro_regular"
-                android:gravity="start"
-                android:padding="8dp"
-                android:paddingStart="32dp"
-                android:paddingLeft="32dp"
-                android:paddingEnd="0dp"
-                android:paddingRight="0dp"
-                android:singleLine="true"
-                android:textColor="@color/buttonColor"
-                android:textSize="16sp"
-                tools:text="fxfxffxxfxfxfxfxfxfxfxfxfxfxfxfxfx" />
-
-            <View
-                android:id="@+id/separator12355"
-                android:layout_width="fill_parent"
-                android:layout_height="1dp"
-                android:layout_below="@id/tx_hash"
-                android:background="@color/greyLight" />
-
-            <!--<TextView-->
-            <!--android:id="@+id/tx_view_on_dcrdata"-->
-            <!--android:layout_width="wrap_content"-->
-            <!--android:layout_height="wrap_content"-->
-            <!--android:layout_below="@id/separator12355"-->
-            <!--android:layout_alignParentEnd="true"-->
-            <!--android:layout_alignParentRight="true"-->
-            <!--android:text="@string/view_on_dcrdata"-->
-            <!--android:textColor="@color/buttonColor" />-->
-
-        </RelativeLayout>
-
-        <LinearLayout
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:orientation="vertical"
-            android:paddingLeft="8dp"
-            android:paddingRight="8dp">
-
-            <View
-                android:id="@+id/separator1442"
-                android:layout_width="fill_parent"
-                android:layout_height="1px"
-                android:background="@color/primary_text" />
-
-            <!--<TextView-->
-                <!--android:id="@+id/tvInput"-->
+                <!--<TextView-->
+                <!--android:id="@+id/tx_view_on_dcrdata"-->
                 <!--android:layout_width="wrap_content"-->
                 <!--android:layout_height="wrap_content"-->
-                <!--android:fontFamily="@font/source_sans_pro_regular"-->
-                <!--android:padding="8dp"-->
-                <!--android:text="@string/inputs"-->
-                <!--android:textColor="@color/auth_text_color"-->
-                <!--android:textSize="16sp" />-->
+                <!--android:layout_below="@id/separator12355"-->
+                <!--android:layout_alignParentEnd="true"-->
+                <!--android:layout_alignParentRight="true"-->
+                <!--android:text="@string/view_on_dcrdata"-->
+                <!--android:textColor="@color/buttonColor" />-->
 
-            <ListView
-                android:id="@+id/lvInput"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:divider="@color/primary_text"
-                android:dividerHeight="0.5dp" />
-            <!--<TextView-->
-                <!--android:id="@+id/tvOutput"-->
-                <!--android:layout_width="wrap_content"-->
-                <!--android:layout_height="wrap_content"-->
-                <!--android:fontFamily="@font/source_sans_pro_regular"-->
-                <!--android:padding="8dp"-->
-                <!--android:text="@string/confirmations"-->
-                <!--android:textColor="@color/auth_text_color"-->
-                <!--android:textSize="16sp" />-->
+            </RelativeLayout>
 
-            <ListView
-                android:id="@+id/lvOutput"
+            <RelativeLayout
                 android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:divider="@color/primary_text"
-                android:dividerHeight="0.5dp" />
+                android:layout_height="match_parent"
+                android:paddingLeft="8dp"
+                android:paddingRight="8dp">
+
+
+                <LinearLayout
+                    android:id="@+id/llInput"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="10dp"
+                    android:orientation="vertical"
+                    tools:visibility="visible">
+
+                    <TextView
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:fontFamily="@font/roboto_regular"
+                        android:paddingStart="16dp"
+                        android:paddingLeft="16dp"
+                        android:paddingRight="16dp"
+                        android:text="@string/inputs"
+                        android:textColor="@color/auth_text_color"
+                        android:textSize="16sp" />
+
+
+                    <ListView
+                        android:id="@+id/lvInput"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="10dp"
+                        android:divider="@color/primary_text"
+                        android:dividerHeight="0.5dp" />
+
+
+                </LinearLayout>
+
+                <View
+                    android:id="@+id/separator1443"
+                    android:layout_width="fill_parent"
+                    android:layout_height="1px"
+                    android:layout_below="@id/llInput"
+                    android:background="@color/primary_text" />
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_below="@id/separator1443"
+                    android:layout_marginTop="10dp"
+                    android:orientation="vertical">
+
+                    <TextView
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:fontFamily="@font/roboto_regular"
+                        android:paddingStart="16dp"
+                        android:paddingLeft="16dp"
+                        android:paddingRight="16dp"
+                        android:text="@string/outputs"
+                        android:textColor="@color/auth_text_color"
+                        android:textSize="16sp" />
+
+                    <ListView
+                        android:id="@+id/lvOutput"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="10dp"
+                        android:divider="@color/primary_text"
+                        android:dividerHeight="0.5dp" />
+
+                </LinearLayout>
+
+            </RelativeLayout>
         </LinearLayout>
-    </LinearLayout>
 </LinearLayout>
