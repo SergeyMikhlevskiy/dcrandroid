@@ -8,16 +8,19 @@ import android.net.Uri;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
 import android.text.style.RelativeSizeSpan;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.ListView;
 import android.widget.TextView;
 
 import com.dcrandroid.R;
+import com.dcrandroid.adapter.ListViewItemAdapter;
 import com.dcrandroid.util.CoinFormat;
 import com.dcrandroid.util.DcrConstants;
 import com.dcrandroid.util.PreferenceUtil;
@@ -43,12 +46,16 @@ import mobilewallet.Mobilewallet;
  */
 
 public class TransactionDetailsActivity extends AppCompatActivity {
+    public static final String TRANSACTION_DETAILS_ACTIVITY = "transactionDetails";
 
     private ListView lvInput, lvOutput;
     private PreferenceUtil util;
     private String transactionType, txHash, rawTx;
     private Bundle extras;
     private float textSize16;
+    private ListViewItemAdapter inputItemAdapter;
+    private ListViewItemAdapter outputItemAdapter;
+    private String address;
 
     private void restartApp() {
         PackageManager packageManager = getPackageManager();
@@ -104,14 +111,6 @@ public class TransactionDetailsActivity extends AppCompatActivity {
         TextView transactionFee = findViewById(R.id.tx_fee);
         final TextView tvHash = findViewById(R.id.tx_hash);
 
-//        TextView viewOnDcrdata = findViewById(R.id.tx_view_on_dcrdata);
-//
-//        viewOnDcrdata.setOnClickListener(new View.OnClickListener() {
-//            @Override
-//            public void onClick(View v) {
-//
-//            }
-//        });
 
         tvHash.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -139,6 +138,7 @@ public class TransactionDetailsActivity extends AppCompatActivity {
 //                return true;
 //            }
 //        });
+
 
         rawTx = extras.getString(Constants.RAW);
 
@@ -185,24 +185,19 @@ public class TransactionDetailsActivity extends AppCompatActivity {
         int txDirection = getIntent().getIntExtra(Constants.DIRECTION, -1);
         LibWallet wallet = DcrConstants.getInstance().wallet;
 
-        ArrayList<String> walletOutput = new ArrayList<>();
-        ArrayList<String> walletInput = new ArrayList<>();
-        ArrayList<Integer> walletOutputIndices = new ArrayList<>();
-        ArrayList<Integer> walletInputIndices = new ArrayList<>();
+        ArrayList<ListViewItemAdapter.TransactionInfoItem> walletInput = new ArrayList<>();
+        ArrayList<ListViewItemAdapter.TransactionInfoItem> walletOutput = new ArrayList<>();
+        ArrayList<Integer> walletOutputIndexes = new ArrayList<>();
+        ArrayList<Integer> walletInputIndexes = new ArrayList<>();
 
         for (int i = 0; i < usedInput.size(); i++) {
-            walletInputIndices.add(usedInput.get(i).index);
-            walletInput.add(usedInput.get(i).accountName + "\n" + Utils.removeTrailingZeros(Mobilewallet.amountCoin(usedInput.get(i).previous_amount)) + " DCR");
+            walletInputIndexes.add(usedInput.get(i).index);
+            walletInput.add(new ListViewItemAdapter.TransactionInfoItem(Utils.formatToUsaStandard(usedInput.get(i).previous_amount), usedInput.get(i).accountName));
         }
 
-        for (int i = 0; i < usedOutput.size(); i++){
-            walletOutputIndices.add(usedOutput.get(i).index);
-            walletOutput.add(
-                    usedOutput.get(i).address +
-                            (txDirection == 0 ? getString(R.string.change_bracket)  + Constants.NBSP : Constants.NBSP) +
-                            "("+wallet.getAccountName(usedOutput.get(i).account) +")\n" +
-                            Utils.removeTrailingZeros(Mobilewallet.amountCoin(usedOutput.get(i).amount)) + " DCR"
-            );
+        for (int i = 0; i < usedOutput.size(); i++) {
+            walletOutputIndexes.add(usedOutput.get(i).index);
+            walletOutput.add(new ListViewItemAdapter.TransactionInfoItem(Utils.formatToUsaStandard(usedOutput.get(i).amount), usedOutput.get(i).address));
         }
 
         try {
@@ -215,7 +210,7 @@ public class TransactionDetailsActivity extends AppCompatActivity {
             for (int i = 0; i < outputs.length(); i++) {
                 JSONObject output = outputs.getJSONObject(i);
 
-                if(walletOutputIndices.indexOf(i) != -1){
+                if(walletOutputIndexes.indexOf(i) != -1){
                     continue;
                 }
 
@@ -225,7 +220,7 @@ public class TransactionDetailsActivity extends AppCompatActivity {
 
                 boolean nullScript = output.getBoolean(Constants.NULL_SCRIPT);
 
-                walletOutput.add(address + getString(R.string.external_bracket) + (nullScript ? getString(R.string.null_data_bracket) : Utils.removeTrailingZeros(Mobilewallet.amountCoin(output.getLong(Constants.VALUE))) + " DCR"));
+                walletOutput.add(new ListViewItemAdapter.TransactionInfoItem(nullScript ? "[null data]" : Utils.formatToUsaStandard(output.getLong("Value")), address));
             }
 
             JSONArray inputs = parent.getJSONArray(Constants.INPUTS);
@@ -233,41 +228,36 @@ public class TransactionDetailsActivity extends AppCompatActivity {
 
                 JSONObject input = inputs.getJSONObject(i);
 
-                if(walletInputIndices.indexOf(i) != -1){
+                if(walletInputIndexes.indexOf(i) != -1){
                     continue;
                 }
-
-                walletInput.add(input.getString(Constants.PREVIOUS_TRANSACTION_HASH) + ":" + input.getInt(Constants.PREVIOUS_TRANSACTION_INDEX)
-                        + Constants.NBSP + getString(R.string.external_bracket)+ Utils.removeTrailingZeros(Mobilewallet.amountCoin(input.getLong(Constants.AMOUNT_IN))) + " DCR");
+                walletInput.add(new ListViewItemAdapter.TransactionInfoItem(Utils.formatToUsaStandard(input.getLong("AmountIn")), input.getString("PreviousTransactionHash")));
             }
+
+            inputItemAdapter = new ListViewItemAdapter(getApplicationContext(), walletInput);
+//            inputItemAdapter.getTvInfo().setTextColor(getResources().getColor(R.color.secondaryTextColor));
+            lvInput.setAdapter(inputItemAdapter);
+
+            outputItemAdapter = new ListViewItemAdapter(getApplicationContext(), walletOutput);
+            lvOutput.setAdapter(outputItemAdapter);
+
+            copyHashFromOutputItem(lvOutput);
+
 
         } catch (Exception e) {
             e.printStackTrace();
         }
 
-//        List<String> headerTitle = new ArrayList<>();
-//
-//        headerTitle.add("Inputs");
-//        headerTitle.add("Outputs");
-//
-//        HashMap<String, List<String>> childContent = new HashMap<>();
-//
-//        childContent.put(headerTitle.get(0), walletInput);
-//        childContent.put(headerTitle.get(1), walletOutput);
+    }
 
-        ArrayAdapter<String> inputAdapter = new ArrayAdapter<>(getApplicationContext(), android.R.layout.simple_list_item_1, walletInput);
-        ArrayAdapter<String> outputAdapter = new ArrayAdapter<>(getApplicationContext(), android.R.layout.simple_list_item_1, walletOutput);
-
-        LayoutInflater inflater = getLayoutInflater();
-        ViewGroup inputHeader = (ViewGroup)inflater.inflate(R.layout.transaction_input_header, lvInput);
-        lvInput.addHeaderView(inputHeader);
-
-        ViewGroup outputHeader = (ViewGroup)inflater.inflate(R.layout.transaction_output_header, lvInput);
-        lvOutput.addHeaderView(outputHeader);
-
-//        ExpandableListViewAdapter expandableListViewAdapter = new ExpandableListViewAdapter(getApplicationContext(), headerTitle, childContent);
-        lvOutput.setAdapter(outputAdapter);
-        lvInput.setAdapter(inputAdapter);
+    private void copyHashFromOutputItem(final ListView listView) {
+        listView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+            @Override
+            public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+                TextView requiredHash = listView.getChildAt(position).findViewById(R.id.tvInfo);
+                Utils.copyToClipboard(getApplicationContext(), requiredHash.getText().toString(), getString(R.string.address_copy_text));
+            }
+        });
     }
 
     @Override
