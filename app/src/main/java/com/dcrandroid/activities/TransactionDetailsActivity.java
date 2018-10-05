@@ -8,14 +8,10 @@ import android.net.Uri;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
 import android.text.style.RelativeSizeSpan;
-import android.util.Log;
-import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
-import android.view.ViewGroup;
 import android.widget.AdapterView;
-import android.widget.ArrayAdapter;
 import android.widget.ListView;
 import android.widget.TextView;
 
@@ -39,7 +35,6 @@ import java.util.Locale;
 import java.util.TimeZone;
 
 import mobilewallet.LibWallet;
-import mobilewallet.Mobilewallet;
 
 /**
  * Created by Macsleven on 02/01/2018.
@@ -262,6 +257,7 @@ public class TransactionDetailsActivity extends AppCompatActivity {
             }
         });
     }
+
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {

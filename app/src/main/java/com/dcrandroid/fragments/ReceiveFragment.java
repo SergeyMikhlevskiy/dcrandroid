@@ -23,6 +23,7 @@ import com.dcrandroid.data.Account;
 import com.dcrandroid.data.Constants;
 import com.dcrandroid.util.DcrConstants;
 import com.dcrandroid.util.PreferenceUtil;
+import com.dcrandroid.util.Utils;
 import com.google.zxing.EncodeHintType;
 
 import net.glxn.qrgen.android.QRCode;
@@ -72,7 +73,7 @@ public class ReceiveFragment extends android.support.v4.app.Fragment implements 
         address.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                copyToClipboard(address.getText().toString());
+                Utils.copyToClipboard(getContext(),address.getText().toString(), getString(R.string.address_copy_text));
             }
         });
         imageView.setOnClickListener(new View.OnClickListener() {
