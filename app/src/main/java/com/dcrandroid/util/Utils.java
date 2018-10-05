@@ -2,6 +2,8 @@ package com.dcrandroid.util;
 
 import android.app.ProgressDialog;
 import android.content.Context;
+import android.content.res.Resources;
+import android.util.TypedValue;
 import android.view.Gravity;
 import android.widget.Toast;
 
@@ -291,6 +293,10 @@ public class Utils {
     }
 
     public static void copyToClipboard(Context ctx, String copyText, String successMessage) {
+        Resources r = ctx.getResources();
+        int margin25dp = Math.round(TypedValue.applyDimension(
+                TypedValue.COMPLEX_UNIT_DIP, 25, r.getDisplayMetrics()));
+
         int sdk = android.os.Build.VERSION.SDK_INT;
         if (sdk < android.os.Build.VERSION_CODES.HONEYCOMB) {
             android.text.ClipboardManager clipboard = (android.text.ClipboardManager) ctx.getSystemService(Context.CLIPBOARD_SERVICE);
@@ -307,7 +313,7 @@ public class Utils {
         }
         Toast toast = Toast.makeText(ctx,
                 successMessage, Toast.LENGTH_SHORT);
-        toast.setGravity(Gravity.BOTTOM | Gravity.END, 50, 50);
+        toast.setGravity(Gravity.BOTTOM, Gravity.CENTER_HORIZONTAL, margin25dp);
         toast.show();
     }
 
