@@ -319,21 +319,23 @@
                         android:divider="@null"
                         android:dividerHeight="0dp" />
 
-                    <View
-                        android:id="@+id/separator1443"
-                        android:layout_width="fill_parent"
-                        android:layout_height="1dp"
-                        android:layout_marginLeft="8dp"
-                        android:layout_marginRight="8dp"
-                        android:background="@color/greyLight"
-                        />
                 </LinearLayout>
+
+                <View
+                    android:id="@+id/separator1443"
+                    android:layout_width="fill_parent"
+                    android:layout_height="1dp"
+                    android:layout_marginLeft="8dp"
+                    android:layout_marginRight="8dp"
+                    android:layout_below="@id/llInput"
+                    android:background="@color/greyLight"
+                    />
 
 
                 <LinearLayout
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:layout_below="@id/llInput"
+                    android:layout_below="@id/separator1443"
                     android:layout_marginTop="10dp"
                     android:orientation="vertical">
 

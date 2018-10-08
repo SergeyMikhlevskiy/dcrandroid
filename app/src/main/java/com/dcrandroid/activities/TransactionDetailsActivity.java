@@ -7,20 +7,21 @@ import android.graphics.Color;
 import android.net.Uri;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
-import android.text.style.RelativeSizeSpan;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
+import android.view.ViewGroup;
 import android.widget.AdapterView;
+import android.widget.ListAdapter;
 import android.widget.ListView;
 import android.widget.TextView;
 
 import com.dcrandroid.R;
 import com.dcrandroid.adapter.ListViewItemAdapter;
+import com.dcrandroid.data.Constants;
 import com.dcrandroid.util.CoinFormat;
 import com.dcrandroid.util.DcrConstants;
 import com.dcrandroid.util.PreferenceUtil;
-import com.dcrandroid.data.Constants;
 import com.dcrandroid.util.TransactionsResponse;
 import com.dcrandroid.util.Utils;
 
@@ -47,10 +48,10 @@ public class TransactionDetailsActivity extends AppCompatActivity {
     private PreferenceUtil util;
     private String transactionType, txHash, rawTx;
     private Bundle extras;
-    private float textSize16;
     private ListViewItemAdapter inputItemAdapter;
     private ListViewItemAdapter outputItemAdapter;
     private String address;
+    private ViewGroup.LayoutParams lvInputLayoutParams, lvOutputLayoutParams;
 
     private void restartApp() {
         PackageManager packageManager = getPackageManager();
@@ -173,7 +174,6 @@ public class TransactionDetailsActivity extends AppCompatActivity {
         }
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
 
-        textSize16 = new RelativeSizeSpan(16F).getSizeChange();
     }
 
     private void loadInOut(ArrayList<TransactionsResponse.TransactionInput> usedInput, ArrayList<TransactionsResponse.TransactionOutput> usedOutput) {
@@ -188,6 +188,8 @@ public class TransactionDetailsActivity extends AppCompatActivity {
         for (int i = 0; i < usedInput.size(); i++) {
             walletInputIndexes.add(usedInput.get(i).index);
             walletInput.add(new ListViewItemAdapter.TransactionInfoItem(Utils.formatToUsaStandard(usedInput.get(i).previous_amount), usedInput.get(i).accountName));
+            util.set(Constants.ACCOUNT_NAME, usedInput.get(i).accountName);
+
         }
 
         for (int i = 0; i < usedOutput.size(); i++) {
@@ -230,20 +232,57 @@ public class TransactionDetailsActivity extends AppCompatActivity {
             }
 
             inputItemAdapter = new ListViewItemAdapter(getApplicationContext(), walletInput);
-//            inputItemAdapter.getTvInfo().setTextColor(getResources().getColor(R.color.secondaryTextColor));
+
             lvInput.setAdapter(inputItemAdapter);
 
             outputItemAdapter = new ListViewItemAdapter(getApplicationContext(), walletOutput);
             lvOutput.setAdapter(outputItemAdapter);
 
-            copyHashFromOutputItem(lvOutput);
+            int lvInputItemHeight = getListItemHeight(lvInput);
 
+            if (lvInput.getCount() == 1) {
+
+                lvInputLayoutParams = lvInput.getLayoutParams();
+                lvInputLayoutParams.height = lvInputItemHeight + (lvInput.getDividerHeight() * (inputItemAdapter.getCount() - 1));
+
+            } else if (lvInput.getCount() == 2) {
+
+                int lvOutputItemHeight = getListItemHeight(lvOutput);
+                int itemHeight = lvInputItemHeight + lvInputItemHeight / 2;
+                lvInputItemHeight += itemHeight;
+
+                lvInputLayoutParams = lvInput.getLayoutParams();
+                lvInputLayoutParams.height = lvInputItemHeight + (lvInput.getDividerHeight() * (inputItemAdapter.getCount() - 1));
+
+                lvOutputLayoutParams = lvOutput.getLayoutParams();
+                lvOutputLayoutParams.height = lvOutputItemHeight + (lvOutput.getDividerHeight() * (outputItemAdapter.getCount() - 1));
+
+            }
+
+            lvInput.setLayoutParams(lvInputLayoutParams);
+            lvOutput.setLayoutParams(lvOutputLayoutParams);
+
+
+            copyHashFromOutputItem(lvOutput);
 
         } catch (Exception e) {
             e.printStackTrace();
         }
 
     }
+
+    private int getListItemHeight(ListView listView) {
+        ListAdapter listAdapter = listView.getAdapter();
+        View listItem = null;
+        if (listAdapter != null) {
+            listItem = listAdapter.getView(0, null, listView);
+            listItem.measure(0, 0);
+            listItem.getMeasuredHeight();
+        }
+        assert listItem != null;
+        return listItem.getMeasuredHeight();
+    }
+
 
     private void copyHashFromOutputItem(final ListView listView) {
         listView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
