@@ -4,9 +4,9 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
-    android:background="@color/colorWhite"
-    android:weightSum="100"
-    android:orientation="horizontal">
+    android:background="@color/greyThemeBackground"
+    android:orientation="horizontal"
+    android:weightSum="100">
 
     <RelativeLayout
         android:layout_width="match_parent"
@@ -17,36 +17,37 @@
             android:id="@+id/history_snd_rcv"
             android:layout_width="20.0dp"
             android:layout_height="20.0dp"
-            android:layout_alignParentStart="true"
-            android:layout_alignParentLeft="true"
             android:layout_centerVertical="true"
+            android:layout_marginStart="16dp"
+            android:layout_marginLeft="16dp"
             android:background="@drawable/ic_send" />
-
         <TextView
             android:id="@+id/history_minus"
-            android:text="@string/hyphen"
-            android:visibility="invisible"
-            android:layout_marginRight="5dp"
-            android:layout_marginEnd="5dp"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_centerVertical="true"
-            android:layout_marginStart="30.0dip"
-            android:layout_marginLeft="30.0dip"
+            android:layout_marginStart="45.0dip"
+            android:layout_marginLeft="45.0dip"
+            android:text="@string/hyphen"
             android:textColor="@color/colorText"
             android:textSize="16.0sp"
+            android:visibility="invisible"
+            tools:visibility="visible"
             app:fontFamily="@font/inconsolata_regular_family" />
 
+
         <TextView
+            app:fontFamily="@font/inconsolata_regular_family"
+            android:textSize="16.0sp"
+            android:textColor="@color/colorText"
             android:id="@+id/history_amount_transferred"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_centerVertical="true"
             android:layout_toEndOf="@+id/history_minus"
             android:layout_toRightOf="@+id/history_minus"
-            android:textColor="@color/colorText"
-            android:textSize="16.0sp"
-            app:fontFamily="@font/inconsolata_regular_family" />
+            tools:visibility="visible"
+            tools:text="0.502342"/>
 
         <TextView
             android:id="@+id/history_addr_transferred"
@@ -82,11 +83,11 @@
                 android:id="@+id/history_tx_status"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
+                android:layout_gravity="end"
                 android:gravity="center"
                 android:paddingLeft="5dp"
                 android:paddingRight="5dp"
                 android:paddingBottom="3dp"
-                android:layout_gravity="end"
                 android:text="@string/confirmed"
                 android:textColor="@color/color_confirmed_tx" />
 
@@ -94,7 +95,7 @@
                 android:id="@+id/tvDateOfTransaction"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:fontFamily="@font/source_sans_pro_regular"
+                app:fontFamily="@font/source_sans_pro_regular"
                 android:gravity="end"
                 android:paddingLeft="5dp"
                 android:paddingRight="5dp"
@@ -109,14 +110,13 @@
             android:id="@+id/rlNextArrow"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
-            android:orientation="horizontal"
-            >
+            android:orientation="horizontal">
 
             <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:background="@mipmap/arrow_drop_down"
                 android:layout_gravity="center"
+                android:background="@mipmap/arrow_drop_down"
                 android:textStyle="bold" />
         </LinearLayout>
 

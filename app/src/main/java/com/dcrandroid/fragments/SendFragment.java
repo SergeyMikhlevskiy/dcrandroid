@@ -643,7 +643,7 @@ public class SendFragment extends android.support.v4.app.Fragment implements Ada
                             continue;
                         }
 
-                        String coinsInWallet = Utils.formatToUsaStandard(accounts.get(i).getBalance().getSpendable());
+                        String coinsInWallet = Utils.formatDecredWithComma(accounts.get(i).getBalance().getSpendable());
                         Log.d(SEND_FRAGMENT, "coinsInWallet: " + coinsInWallet);
 
                         Spannable spanCoinsInWallet = CoinFormat.Companion.format(coinsInWallet);

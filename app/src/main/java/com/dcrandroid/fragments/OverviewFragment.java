@@ -15,7 +15,6 @@ import android.support.v7.widget.DefaultItemAnimator;
 import android.support.v7.widget.DividerItemDecoration;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
-import android.util.Log;
 import android.util.TypedValue;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -25,10 +24,9 @@ import android.widget.ImageView;
 import android.widget.TextView;
 
 import com.dcrandroid.MainActivity;
+import com.dcrandroid.R;
 import com.dcrandroid.activities.TransactionDetailsActivity;
 import com.dcrandroid.adapter.TransactionAdapter;
-import com.dcrandroid.R;
-
 import com.dcrandroid.data.Account;
 import com.dcrandroid.data.Constants;
 import com.dcrandroid.util.CoinFormat;
@@ -41,9 +39,7 @@ import com.dcrandroid.util.Utils;
 
 import java.io.File;
 import java.io.FileInputStream;
-import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
-import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.util.ArrayList;
@@ -51,7 +47,6 @@ import java.util.Collections;
 import java.util.List;
 
 import mobilewallet.GetTransactionsResponse;
-import mobilewallet.Mobilewallet;
 
 /**
  * Created by Macsleven on 28/11/2017.
@@ -225,7 +220,7 @@ public class OverviewFragment extends Fragment implements SwipeRefreshLayout.OnR
                     getActivity().runOnUiThread(new Runnable() {
                         @Override
                         public void run() {
-                            tvBalance.setText(CoinFormat.Companion.format(Utils.formatToUsaStandard(finalTotalBalance) + " DCR"));
+                            tvBalance.setText(CoinFormat.Companion.format(Utils.formatDecredWithComma(finalTotalBalance) + " DCR"));
                         }
                     });
                 } catch (Exception e) {

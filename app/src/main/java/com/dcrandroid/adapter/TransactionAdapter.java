@@ -2,9 +2,7 @@ package com.dcrandroid.adapter;
 
 import android.content.Context;
 import android.graphics.Color;
-import android.os.Bundle;
 import android.support.v7.widget.RecyclerView;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -26,10 +24,6 @@ import java.util.GregorianCalendar;
 import java.util.List;
 import java.util.Locale;
 import java.util.TimeZone;
-
-import mobilewallet.Mobilewallet;
-
-import static com.dcrandroid.fragments.OverviewFragment.OVERVIEW_FRAGMENT;
 
 /**
  * Created by Macsleven on 01/01/2018.
@@ -108,7 +102,7 @@ public class TransactionAdapter extends RecyclerView.Adapter<TransactionAdapter.
 
         holder.tvDateOfTransaction.setText(calendar.getDisplayName(Calendar.MONTH, Calendar.SHORT, Locale.getDefault()) + sdf.format(calendar.getTime()).toLowerCase());
 
-        String strAmount = Utils.formatToUsaStandard(history.getAmount());
+        String strAmount = Utils.formatDecredWithComma(history.getAmount());
 
         holder.Amount.setText(CoinFormat.Companion.format(strAmount + Constants.NBSP + layoutInflater.getContext().getString(R.string.dcr)));
         holder.txType.setText("");

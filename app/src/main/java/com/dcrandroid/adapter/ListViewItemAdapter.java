@@ -3,7 +3,6 @@ package com.dcrandroid.adapter;
 import android.content.Context;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -48,8 +47,9 @@ public class ListViewItemAdapter extends ArrayAdapter<ListViewItemAdapter.Transa
         tvInfo.setText(transactionInfoItem.getInfo());
 
         if (tvInfo.getText().toString().equals(util.get(Constants.ACCOUNT_NAME))) {
-            tvInfo.setTextColor(getContext().getResources().getColor(R.color.secondaryTextColor));
+            tvInfo.setTextColor(mContext.getResources().getColor(R.color.secondaryTextColor));
         }
+
 
         return listItem;
     }

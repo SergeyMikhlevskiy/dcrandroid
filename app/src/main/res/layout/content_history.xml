@@ -1,9 +1,8 @@
 <?xml version="1.0" encoding="utf-8"?>
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="@color/colorWhite"
+    android:background="@color/greyThemeBackground"
     android:padding="16dp">
 
     <android.support.v4.widget.SwipeRefreshLayout
@@ -19,24 +18,22 @@
             <RelativeLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:paddingBottom="16dp"
-                >
+                android:paddingBottom="16dp">
 
                 <Spinner
                     android:id="@+id/spinnerHistory"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_alignParentEnd="true"
-                    android:layout_alignParentRight="true"
-                    >
+                    android:layout_alignParentRight="true">
 
                 </Spinner>
             </RelativeLayout>
 
             <View
                 android:layout_width="match_parent"
-                android:background="@color/backgcolor"
-                android:layout_height="1dp"/>
+                android:layout_height="1dp"
+                android:background="@color/greyViewDivider" />
 
             <android.support.v7.widget.RecyclerView
                 android:id="@+id/history_recycler_view"
@@ -57,12 +54,5 @@
         </LinearLayout>
     </android.support.v4.widget.SwipeRefreshLayout>
 
-    <!--<ProgressBar style="@android:style/Widget.DeviceDefault.Light.ProgressBar.Inverse"-->
-    <!--android:layout_gravity="center"-->
-    <!--android:layout_width="wrap_content"-->
-    <!--android:layout_height="wrap_content"-->
-    <!--android:id="@+id/progressContainers"-->
-    <!--android:visibility="invisible"-->
-    <!--android:layout_centerInParent="true"/>-->
 
 </RelativeLayout>

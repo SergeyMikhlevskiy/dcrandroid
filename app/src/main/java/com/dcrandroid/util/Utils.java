@@ -247,7 +247,7 @@ public class Utils {
         format.applyPattern("#,###,###,##0.########");
         return format.format(dcr);
     }
-    public static String formatToUsaStandard(long dcr) {
+    public static String formatDecredWithComma(long dcr) {
         double convertedDcr = Mobilewallet.amountCoin(dcr);
         NumberFormat nf = NumberFormat.getNumberInstance(Locale.US);
         DecimalFormat df = (DecimalFormat) nf;
