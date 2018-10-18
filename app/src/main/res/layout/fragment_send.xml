@@ -15,7 +15,6 @@
         android:paddingEnd="5dp"
         android:paddingTop="10dp"
         android:orientation="vertical"
-        android:background="#fff"
         >
 
         <TextView
@@ -116,7 +115,7 @@
         <View
             android:layout_width="match_parent"
             android:layout_height="1dp"
-            android:background="#D0D1D1" />
+            android:background="@color/lightGreyBackgroundColor" />
 
         <TextView
             android:id="@+id/tvDestinationError"
@@ -160,7 +159,6 @@
                         android:layout_weight="1"
                         android:layout_marginLeft="10dp"
                         android:layout_marginStart="10dp"
-                        android:background="#fff"
                         android:digits="0123456789."
                         android:hint="@string/_0_00_"
                         android:inputType="numberDecimal"
@@ -195,20 +193,19 @@
                         android:textColor="@color/blueGrayFirstTextColor38pc"
                         android:textSize="16sp"
                         />
+
                     <EditText
+                        android:id="@+id/amount_usd"
                         android:layout_width="0dp"
                         android:layout_height="wrap_content"
-                        android:layout_weight="1"
-                        android:layout_marginLeft="10dp"
                         android:layout_marginStart="10dp"
-                        android:background="#fff"
+                        android:layout_marginLeft="10dp"
+                        android:layout_weight="1"
                         android:digits="0123456789."
                         android:hint="@string/_0_00_"
                         android:inputType="numberDecimal"
                         android:lines="1"
-                        android:textColor="@color/darkBlueTextColor"
-                        android:id="@+id/amount_usd"
-                        />
+                        android:textColor="@color/darkBlueTextColor" />
                     <TextView
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
@@ -230,14 +227,14 @@
                 android:clickable="true"
                 android:focusable="true"
                 android:text="@string/max"
-                android:textColor="#617386"
+                android:textColor="@color/blueGrayFirstTextColor"
                 android:textSize="14sp" />
         </LinearLayout>
 
         <View
             android:layout_width="match_parent"
             android:layout_height="1dp"
-            android:background="#lightGreyBackgroundColor"
+            android:background="@color/lightGreyBackgroundColor"
             android:layout_marginTop="10dp"
             />
 

@@ -223,7 +223,7 @@ class SendFragment : Fragment(), AdapterView.OnItemSelectedListener {
         send_dcr_estimate_fee.setText(R.string._0_00_dcr)
         send_dcr_balance_after.setText(R.string._0_00_dcr)
         send_btn.isEnabled = false
-        send_btn.setTextColor(resources.getColor(R.color.black38))
+        send_btn.setTextColor(resources.getColor(R.color.blackTextColor38pc))
     }
 
     private fun constructTransaction(){
@@ -431,11 +431,11 @@ class SendFragment : Fragment(), AdapterView.OnItemSelectedListener {
             if (s.toString() == "") {
                 tvDestinationError.setText(R.string.empty_destination_address)
                 send_btn.isEnabled = false
-                send_btn.setTextColor(resources.getColor(R.color.black38))
+                send_btn.setTextColor(resources.getColor(R.color.blackTextColor38pc))
             } else if (!constants.wallet.isAddressValid(s.toString())) {
                 tvDestinationError.setText(R.string.invalid_destination_address)
                 send_btn.isEnabled = false
-                send_btn.setTextColor(resources.getColor(R.color.black38))
+                send_btn.setTextColor(resources.getColor(R.color.blackTextColor38pc))
             } else {
                 tvDestinationError.text = null
                 tvDestinationError.visibility = View.VISIBLE
