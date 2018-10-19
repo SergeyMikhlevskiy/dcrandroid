@@ -13,7 +13,6 @@
         android:id="@+id/tvAmount"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-
         app:fontFamily="@font/roboto_regular"
         android:textColor="@color/auth_text_color"
         android:textSize="14sp"

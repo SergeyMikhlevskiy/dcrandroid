@@ -18,7 +18,7 @@ import android.widget.ListView;
 import android.widget.TextView;
 
 import com.dcrandroid.R;
-import com.dcrandroid.adapter.ListViewItemAdapter;
+import com.dcrandroid.adapter.TransactionInfoAdapter;
 import com.dcrandroid.data.Constants;
 import com.dcrandroid.util.CoinFormat;
 import com.dcrandroid.util.DcrConstants;
@@ -43,16 +43,12 @@ import mobilewallet.LibWallet;
  */
 
 public class TransactionDetailsActivity extends AppCompatActivity {
-    public static final String TRANSACTION_DETAILS_ACTIVITY = "transactionDetails";
 
     private ListView lvInput, lvOutput;
     private PreferenceUtil util;
-    private String transactionType, txHash, rawTx;
-    private Bundle extras;
-    private ListViewItemAdapter inputItemAdapter;
-    private ListViewItemAdapter outputItemAdapter;
-    private String address;
-    private ViewGroup.LayoutParams lvInputLayoutParams, lvOutputLayoutParams;
+    private String txHash;
+    private String rawTx;
+
 
     private void restartApp() {
         PackageManager packageManager = getPackageManager();
@@ -81,7 +77,7 @@ public class TransactionDetailsActivity extends AppCompatActivity {
         setTitle(getString(R.string.Transaction_details));
         setContentView(R.layout.transaction_details_view);
         util = new PreferenceUtil(this);
-        extras = getIntent().getExtras();
+        Bundle extras = getIntent().getExtras();
         if (extras == null) {
             System.out.println("Extras is null");
             return;
@@ -90,7 +86,7 @@ public class TransactionDetailsActivity extends AppCompatActivity {
         lvInput = findViewById(R.id.lvInput);
         lvOutput = findViewById(R.id.lvOutput);
 
-        transactionType = extras.getString(Constants.TYPE);
+        String transactionType = extras.getString(Constants.TYPE);
         transactionType = transactionType.substring(0, 1).toUpperCase() + transactionType.substring(1).toLowerCase();
 
         ArrayList<TransactionsResponse.TransactionInput> inputs
@@ -121,7 +117,6 @@ public class TransactionDetailsActivity extends AppCompatActivity {
 
         txHash = extras.getString(Constants.HASH);
         tvHash.setText(txHash);
-        //DcrConstants.getInstance().wallet.getTransaction(txHash.getBytes());
 
         value.setText(CoinFormat.Companion.format(Utils.formatDecredWithComma(extras.getLong(Constants.AMOUNT, 0)) + " " + getString(R.string.dcr)));
         transactionFee.setText(CoinFormat.Companion.format(Utils.formatDecredWithComma(extras.getLong(Constants.FEE, 0)) + " " + getString(R.string.dcr)));
@@ -156,34 +151,24 @@ public class TransactionDetailsActivity extends AppCompatActivity {
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
 
     }
-
     private void loadInOut(ArrayList<TransactionsResponse.TransactionInput> usedInput, ArrayList<TransactionsResponse.TransactionOutput> usedOutput) {
-        int txDirection = getIntent().getIntExtra(Constants.DIRECTION, -1);
         LibWallet wallet = DcrConstants.getInstance().wallet;
 
-        ArrayList<ListViewItemAdapter.TransactionInfoItem> walletInput = new ArrayList<>();
-        ArrayList<ListViewItemAdapter.TransactionInfoItem> walletOutput = new ArrayList<>();
-        ArrayList<Integer> walletInputIndices = new ArrayList<>();
+        ArrayList<TransactionInfoAdapter.TransactionInfoItem> walletInput = new ArrayList<>();
+        ArrayList<TransactionInfoAdapter.TransactionInfoItem> walletOutput = new ArrayList<>();
         ArrayList<Integer> walletOutputIndices = new ArrayList<>();
+        ArrayList<Integer> walletInputIndices = new ArrayList<>();
 
         for (int i = 0; i < usedInput.size(); i++) {
-            walletOutputIndices.add(usedInput.get(i).index);
-            walletInput.add(new ListViewItemAdapter.TransactionInfoItem(Utils.formatDecredWithComma(usedInput.get(i).previous_amount), usedInput.get(i).accountName));
+            walletInputIndices.add(usedInput.get(i).index);
+            walletInput.add(new TransactionInfoAdapter.TransactionInfoItem(Utils.formatDecredWithComma(usedInput.get(i).previous_amount), usedInput.get(i).accountName));
             util.set(Constants.ACCOUNT_NAME, usedInput.get(i).accountName);
 
         }
-        //fix this
+
         for (int i = 0; i < usedOutput.size(); i++) {
-            walletInputIndices.add(usedOutput.get(i).index);
-            walletOutput.add(new ListViewItemAdapter.TransactionInfoItem(Utils.formatDecredWithComma(usedOutput.get(i).amount), usedOutput.get(i).address));
-        for (int i = 0; i < usedOutput.size(); i++){
             walletOutputIndices.add(usedOutput.get(i).index);
-            walletOutput.add(
-                    usedOutput.get(i).address + Constants.NBSP +
-                            (txDirection == 0 ? getString(R.string.change_bracket)  + Constants.NBSP : Constants.NBSP) +
-                            "("+wallet.getAccountName(usedOutput.get(i).account) +")\n" +
-                            Utils.removeTrailingZeros(Mobilewallet.amountCoin(usedOutput.get(i).amount)) + " DCR"
-            );
+            walletOutput.add(new TransactionInfoAdapter.TransactionInfoItem(Utils.formatDecredWithComma(usedOutput.get(i).amount), usedOutput.get(i).address));
         }
 
         try {
@@ -196,7 +181,7 @@ public class TransactionDetailsActivity extends AppCompatActivity {
             for (int i = 0; i < outputs.length(); i++) {
                 JSONObject output = outputs.getJSONObject(i);
 
-                if (walletInputIndices.indexOf(i) != -1) {
+                if (walletOutputIndices.indexOf(i) != -1) {
                     continue;
                 }
 
@@ -205,9 +190,8 @@ public class TransactionDetailsActivity extends AppCompatActivity {
                 String address = addresses.length() > 0 ? addresses.getString(0) : getString(R.string.script_bracket);
 
                 boolean nullScript = output.getBoolean(Constants.NULL_SCRIPT);
-                //fix this
-                walletOutput.add(new ListViewItemAdapter.TransactionInfoItem(nullScript ? "[null data]" : Utils.formatDecredWithComma(output.getLong("Value")), address));
-                walletOutput.add(address + Constants.NBSP + getString(R.string.external_bracket) + " \n" + (nullScript ? getString(R.string.null_data_bracket) : Utils.removeTrailingZeros(Mobilewallet.amountCoin(output.getLong(Constants.VALUE))) + " DCR"));
+
+                walletOutput.add(new TransactionInfoAdapter.TransactionInfoItem(nullScript ? "[null data]" : Utils.formatDecredWithComma(output.getLong("Value")), address));
             }
 
             JSONArray inputs = parent.getJSONArray(Constants.INPUTS);
@@ -215,97 +199,93 @@ public class TransactionDetailsActivity extends AppCompatActivity {
 
                 JSONObject input = inputs.getJSONObject(i);
 
-                if (walletOutputIndices.indexOf(i) != -1) {
+                if (walletInputIndices.indexOf(i) != -1) {
                     continue;
                 }
-                //fix this
-                walletInput.add(input.getString(Constants.PREVIOUS_TRANSACTION_HASH) + ":" + input.getInt(Constants.PREVIOUS_TRANSACTION_INDEX)
-                        + Constants.NBSP + getString(R.string.external_bracket) + "\n" + Utils.removeTrailingZeros(Mobilewallet.amountCoin(input.getLong(Constants.AMOUNT_IN))) + " DCR");
-                walletInput.add(new ListViewItemAdapter.TransactionInfoItem(Utils.formatDecredWithComma(input.getLong("AmountIn")), input.getString("PreviousTransactionHash")));
+                walletInput.add(new TransactionInfoAdapter.TransactionInfoItem(Utils.formatDecredWithComma(input.getLong("AmountIn")), input.getString("PreviousTransactionHash")));
             }
 
-            inputItemAdapter = new ListViewItemAdapter(getApplicationContext(), walletInput);
+            TransactionInfoAdapter inputItemAdapter = new TransactionInfoAdapter(getApplicationContext(), walletInput);
 
             lvInput.setAdapter(inputItemAdapter);
 
-            outputItemAdapter = new ListViewItemAdapter(getApplicationContext(), walletOutput);
+            TransactionInfoAdapter outputItemAdapter = new TransactionInfoAdapter(getApplicationContext(), walletOutput);
             lvOutput.setAdapter(outputItemAdapter);
             copyHashFromOutputItem(lvOutput);
 
-            setListViewHeight(lvInput);
-            setListViewHeight(lvOutput);
+                setListViewHeight(lvInput);
+                setListViewHeight(lvOutput);
 
-
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-
-    }
-
-
-    public static void setListViewHeight(ListView listView) {
-        ListAdapter mListAdapter = listView.getAdapter();
-        if (mListAdapter == null) {
-            return;
-        }
-        int height = 0;
-        int desiredWidth = View.MeasureSpec.makeMeasureSpec(listView.getWidth(), View.MeasureSpec.UNSPECIFIED);
-        for (int i = 0; i < mListAdapter.getCount(); i++) {
-            View listItem = mListAdapter.getView(i, null, listView);
-            listItem.measure(desiredWidth, View.MeasureSpec.UNSPECIFIED);
-            height += listItem.getMeasuredHeight() + 50;
-        }
-        if (mListAdapter.getCount() == 1 || mListAdapter.getCount() == 2) height -= 50;
-        ViewGroup.LayoutParams params = listView.getLayoutParams();
-        params.height = height + (listView.getDividerHeight() * (mListAdapter.getCount() - 1));
-        listView.setLayoutParams(params);
-        listView.requestLayout();
-    }
-
-
-    private void copyHashFromOutputItem(final ListView listView) {
-
-        ListAdapter listAdapter = listView.getAdapter();
-        final SparseArray<String> walletHashAddress = new SparseArray<>();
-
-        if (listAdapter != null) {
-            for (int i = 0; i < listAdapter.getCount(); i++) {
-                View listItem = listAdapter.getView(i, null, listView);
-                TextView requiredHash = listItem.findViewById(R.id.tvInfo);
-                walletHashAddress.put(i, requiredHash.getText().toString());
+            } catch (Exception e) {
+                e.printStackTrace();
             }
-            listView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
-                @Override
-                public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-                    Utils.copyToClipboard(getApplicationContext(), walletHashAddress.get(position), getString(R.string.address_copy_text));
+
+        }
+
+
+        public static void setListViewHeight (ListView listView){
+            ListAdapter mListAdapter = listView.getAdapter();
+            if (mListAdapter == null) {
+                return;
+            }
+            int height = 0;
+            int desiredWidth = View.MeasureSpec.makeMeasureSpec(listView.getWidth(), View.MeasureSpec.UNSPECIFIED);
+            for (int i = 0; i < mListAdapter.getCount(); i++) {
+                View listItem = mListAdapter.getView(i, null, listView);
+                listItem.measure(desiredWidth, View.MeasureSpec.UNSPECIFIED);
+                height += listItem.getMeasuredHeight() + 50;
+            }
+            if (mListAdapter.getCount() == 1 || mListAdapter.getCount() == 2);
+            ViewGroup.LayoutParams params = listView.getLayoutParams();
+            params.height = height + (listView.getDividerHeight() * (mListAdapter.getCount() - 1));
+            listView.setLayoutParams(params);
+            listView.requestLayout();
+        }
+
+
+        private void copyHashFromOutputItem ( final ListView listView){
+
+            ListAdapter listAdapter = listView.getAdapter();
+            final SparseArray<String> walletHashAddress = new SparseArray<>();
+
+            if (listAdapter != null) {
+                for (int i = 0; i < listAdapter.getCount(); i++) {
+                    View listItem = listAdapter.getView(i, null, listView);
+                    TextView requiredHash = listItem.findViewById(R.id.tvInfo);
+                    walletHashAddress.put(i, requiredHash.getText().toString());
                 }
-            });
+                listView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+                    @Override
+                    public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+                        Utils.copyToClipboard(getApplicationContext(), walletHashAddress.get(position), getString(R.string.address_copy_text));
+                    }
+                });
+            }
+
         }
 
-    }
 
-
-    @Override
-    public boolean onCreateOptionsMenu(Menu menu) {
-        getMenuInflater().inflate(R.menu.transaction_details_menu, menu);
-        return true;
-    }
-
-    @Override
-    public boolean onOptionsItemSelected(MenuItem item) {
-        switch (item.getItemId()) {
-            case R.id.tx_details_tx_hash:
-                Utils.copyToClipboard(this, txHash, getString(R.string.tx_hash_copy));
-                break;
-            case R.id.tx_details_raw_tx:
-                Utils.copyToClipboard(this, rawTx, getString(R.string.raw_tx_copied));
-                break;
-            case R.id.tx_viewOnDcrData:
-                String url = "https://testnet.dcrdata.org/tx/" + txHash;
-                Intent browserIntent = new Intent(Intent.ACTION_VIEW, Uri.parse(url));
-                startActivity(browserIntent);
-                break;
+        @Override
+        public boolean onCreateOptionsMenu (Menu menu){
+            getMenuInflater().inflate(R.menu.transaction_details_menu, menu);
+            return true;
         }
-        return super.onOptionsItemSelected(item);
+
+        @Override
+        public boolean onOptionsItemSelected (MenuItem item){
+            switch (item.getItemId()) {
+                case R.id.tx_details_tx_hash:
+                    Utils.copyToClipboard(this, txHash, getString(R.string.tx_hash_copy));
+                    break;
+                case R.id.tx_details_raw_tx:
+                    Utils.copyToClipboard(this, rawTx, getString(R.string.raw_tx_copied));
+                    break;
+                case R.id.tx_viewOnDcrData:
+                    String url = "https://testnet.dcrdata.org/tx/" + txHash;
+                    Intent browserIntent = new Intent(Intent.ACTION_VIEW, Uri.parse(url));
+                    startActivity(browserIntent);
+                    break;
+            }
+            return super.onOptionsItemSelected(item);
+        }
     }
-}
