@@ -202,7 +202,11 @@ public class HistoryFragment extends Fragment implements SwipeRefreshLayout.OnRe
 
     @Override
     public void onRefresh() {
-        prepareHistoryData();
+        if(!transactionTypeSelected.equals("")) {
+            swipeRefreshLayout.setRefreshing(false);
+        } else {
+            prepareHistoryData();
+        }
     }
 
     public void newTransaction(TransactionsResponse.TransactionItem transaction) {
@@ -294,6 +298,7 @@ public class HistoryFragment extends Fragment implements SwipeRefreshLayout.OnRe
         spinnerHistory.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
             @Override
             public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
+
                 switch (position) {
                     case 0:
                         transactionTypeSelected = "";

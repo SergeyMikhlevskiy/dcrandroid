@@ -7,7 +7,7 @@
     android:layout_height="match_parent"
     tools:layout_height="wrap_content"
     android:fillViewport="true"
-    android:background="@color/greyThemeBackground">
+    android:background="@color/colorPrimary">
 
     <LinearLayout
         android:layout_width="match_parent"
@@ -19,6 +19,7 @@
             android:layout_height="wrap_content"
             android:layout_marginLeft="5dp"
             android:layout_marginRight="5dp"
+            android:focusableInTouchMode="true"
             android:padding="8dp">
 
             <TextView
@@ -357,13 +358,6 @@
                     android:dividerHeight="0dp"
                     android:paddingLeft="8dp"
                     android:paddingRight="8dp" />
-                <View
-                    android:id="@+id/separator1445"
-                    android:layout_width="fill_parent"
-                    android:layout_height="1dp"
-                    android:layout_marginLeft="8dp"
-                    android:layout_marginRight="8dp"
-                    android:background="@color/greyViewDivider" />
 
             </LinearLayout>
 

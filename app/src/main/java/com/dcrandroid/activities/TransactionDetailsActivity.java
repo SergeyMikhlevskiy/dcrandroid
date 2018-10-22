@@ -7,6 +7,7 @@ import android.graphics.Color;
 import android.net.Uri;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
+import android.util.Log;
 import android.util.SparseArray;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -151,6 +152,7 @@ public class TransactionDetailsActivity extends AppCompatActivity {
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
 
     }
+
     private void loadInOut(ArrayList<TransactionsResponse.TransactionInput> usedInput, ArrayList<TransactionsResponse.TransactionOutput> usedOutput) {
         LibWallet wallet = DcrConstants.getInstance().wallet;
 
@@ -206,86 +208,90 @@ public class TransactionDetailsActivity extends AppCompatActivity {
             }
 
             TransactionInfoAdapter inputItemAdapter = new TransactionInfoAdapter(getApplicationContext(), walletInput);
-
             lvInput.setAdapter(inputItemAdapter);
 
             TransactionInfoAdapter outputItemAdapter = new TransactionInfoAdapter(getApplicationContext(), walletOutput);
             lvOutput.setAdapter(outputItemAdapter);
             copyHashFromOutputItem(lvOutput);
 
-                setListViewHeight(lvInput);
-                setListViewHeight(lvOutput);
+            setListViewHeight(lvInput);
+            setListViewHeight(lvOutput);
+            ViewGroup.LayoutParams params = lvOutput.getLayoutParams();
+            params.height += 50;
 
-            } catch (Exception e) {
-                e.printStackTrace();
-            }
-
+        } catch (Exception e) {
+            e.printStackTrace();
         }
 
-
-        public static void setListViewHeight (ListView listView){
-            ListAdapter mListAdapter = listView.getAdapter();
-            if (mListAdapter == null) {
-                return;
-            }
-            int height = 0;
-            int desiredWidth = View.MeasureSpec.makeMeasureSpec(listView.getWidth(), View.MeasureSpec.UNSPECIFIED);
-            for (int i = 0; i < mListAdapter.getCount(); i++) {
-                View listItem = mListAdapter.getView(i, null, listView);
-                listItem.measure(desiredWidth, View.MeasureSpec.UNSPECIFIED);
-                height += listItem.getMeasuredHeight() + 50;
-            }
-            if (mListAdapter.getCount() == 1 || mListAdapter.getCount() == 2);
-            ViewGroup.LayoutParams params = listView.getLayoutParams();
-            params.height = height + (listView.getDividerHeight() * (mListAdapter.getCount() - 1));
-            listView.setLayoutParams(params);
-            listView.requestLayout();
-        }
-
-
-        private void copyHashFromOutputItem ( final ListView listView){
-
-            ListAdapter listAdapter = listView.getAdapter();
-            final SparseArray<String> walletHashAddress = new SparseArray<>();
-
-            if (listAdapter != null) {
-                for (int i = 0; i < listAdapter.getCount(); i++) {
-                    View listItem = listAdapter.getView(i, null, listView);
-                    TextView requiredHash = listItem.findViewById(R.id.tvInfo);
-                    walletHashAddress.put(i, requiredHash.getText().toString());
-                }
-                listView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
-                    @Override
-                    public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-                        Utils.copyToClipboard(getApplicationContext(), walletHashAddress.get(position), getString(R.string.address_copy_text));
-                    }
-                });
-            }
-
-        }
-
-
-        @Override
-        public boolean onCreateOptionsMenu (Menu menu){
-            getMenuInflater().inflate(R.menu.transaction_details_menu, menu);
-            return true;
-        }
-
-        @Override
-        public boolean onOptionsItemSelected (MenuItem item){
-            switch (item.getItemId()) {
-                case R.id.tx_details_tx_hash:
-                    Utils.copyToClipboard(this, txHash, getString(R.string.tx_hash_copy));
-                    break;
-                case R.id.tx_details_raw_tx:
-                    Utils.copyToClipboard(this, rawTx, getString(R.string.raw_tx_copied));
-                    break;
-                case R.id.tx_viewOnDcrData:
-                    String url = "https://testnet.dcrdata.org/tx/" + txHash;
-                    Intent browserIntent = new Intent(Intent.ACTION_VIEW, Uri.parse(url));
-                    startActivity(browserIntent);
-                    break;
-            }
-            return super.onOptionsItemSelected(item);
-        }
     }
+
+
+    public static void setListViewHeight(ListView listView) {
+        ListAdapter listAdapter = listView.getAdapter();
+        if (listAdapter == null) {
+            return;
+        }
+
+        int totalHeight = 0;
+
+        for (int i = 0; i < listAdapter.getCount(); i++) {
+            View listItem = listAdapter.getView(i, null, listView);
+            float px = 450 * (listView.getResources().getDisplayMetrics().density);
+            listItem.measure(View.MeasureSpec.makeMeasureSpec((int) px, View.MeasureSpec.AT_MOST), View.MeasureSpec.makeMeasureSpec(0, View.MeasureSpec.UNSPECIFIED));
+            totalHeight += listItem.getMeasuredHeight();
+
+        }
+
+        ViewGroup.LayoutParams params = listView.getLayoutParams();
+        params.height = totalHeight;
+        listView.setLayoutParams(params);
+        listView.requestLayout();
+    }
+
+
+    private void copyHashFromOutputItem(final ListView listView) {
+
+        ListAdapter listAdapter = listView.getAdapter();
+        final SparseArray<String> walletHashAddress = new SparseArray<>();
+
+        if (listAdapter != null) {
+            for (int i = 0; i < listAdapter.getCount(); i++) {
+                View listItem = listAdapter.getView(i, null, listView);
+                TextView requiredHash = listItem.findViewById(R.id.tvInfo);
+                walletHashAddress.put(i, requiredHash.getText().toString());
+            }
+            listView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+                @Override
+                public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+                    Utils.copyToClipboard(getApplicationContext(), walletHashAddress.get(position), getString(R.string.address_copy_text));
+                }
+            });
+        }
+
+    }
+
+
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+        getMenuInflater().inflate(R.menu.transaction_details_menu, menu);
+        return true;
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        switch (item.getItemId()) {
+            case R.id.tx_details_tx_hash:
+                Utils.copyToClipboard(this, txHash, getString(R.string.tx_hash_copy));
+                break;
+            case R.id.tx_details_raw_tx:
+                Utils.copyToClipboard(this, rawTx, getString(R.string.raw_tx_copied));
+                break;
+            case R.id.tx_viewOnDcrData:
+                String url = "https://testnet.dcrdata.org/tx/" + txHash;
+                Intent browserIntent = new Intent(Intent.ACTION_VIEW, Uri.parse(url));
+                startActivity(browserIntent);
+                break;
+        }
+        return super.onOptionsItemSelected(item);
+    }
+}
