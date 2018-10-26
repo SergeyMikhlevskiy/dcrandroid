@@ -40,7 +40,7 @@
                 android:layout_below="@id/rlSpinner"
                 android:layout_width="match_parent"
                 android:layout_height="1dp"
-                android:background="@color/greyViewDivider" />
+                android:background="@color/lightGreyBackgroundColor" />
 
             <android.support.v7.widget.RecyclerView
                 android:id="@+id/history_recycler_view"

@@ -92,7 +92,7 @@
                 android:layout_height="wrap_content"
                 android:layout_gravity="end"
                 android:maxLines="1"
-                android:textColor="@color/titleTextColor"
+                android:textColor="@color/grayTextColor"
                 android:textSize="12sp"
                 app:fontFamily="@font/source_sans_pro_regular"
                 tools:text="test text" />

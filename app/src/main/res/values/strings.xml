@@ -388,9 +388,6 @@
     <string name="decred_colon">decred:</string>
     <string name="exchange_rate">Exchange Rate:</string>
     <string name="bittrex_rate_unavailable_tap_to_retry">Bittrex rate unavailable (tap to retry)</string>
-
-    <string name="inputs">Inputs</string>
-    <string name="outputs">Outputs</string>
     <string name="fee">Fee</string>
     <string name="estimatedFee">Estimated Fee</string>
     <string name="link_to_dcr_data">Tab this to see details in Dcrdata</string>
