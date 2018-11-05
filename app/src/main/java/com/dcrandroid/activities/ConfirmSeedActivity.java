@@ -53,9 +53,9 @@ public class ConfirmSeedActivity extends AppCompatActivity {
         ImageView buttonSeedClear = findViewById(R.id.button_clear_seed);
         Button btnConfirmSeed = findViewById(R.id.button_confirm_seed);
         Button btnDeleteSeed = findViewById(R.id.button_delete_seed);
-        seedTv = findViewById(R.id.autoCompleteSeed);
-        seedTv.setSingleLine(true);
-        seedTv.setCompletionHint(getString(R.string.tap_to_select));
+//        seedTv = findViewById(R.id.autoCompleteSeed);
+//        seedTv.setSingleLine(true);
+//        seedTv.setCompletionHint(getString(R.string.tap_to_select));
 
         btnConfirmSeed.setOnLongClickListener(new View.OnLongClickListener() {
             @Override
