@@ -64,54 +64,10 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content">
 
-            <RelativeLayout
-                android:id="@+id/seedViewScrollcon"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content">
-
-                <ScrollView
-                    android:id="@+id/seedViewScroll"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:layout_toStartOf="@id/button_clear_seed"
-                    android:layout_toLeftOf="@id/button_clear_seed"
-
-
-                    >
-
-                    <TextView
-                        android:id="@+id/seed_display_confirm"
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:layout_marginTop="5dp"
-                        android:background="@color/colorPrimary"
-                        android:padding="8dp"
-                        android:textColor="@color/deepBlackTextColor"
-                        android:textSize="18sp"
-                        app:fontFamily="@font/inconsolata_regular_family" />
-
-                </ScrollView>
-
-                <ImageView
-                    android:id="@+id/button_clear_seed"
-                    android:layout_width="20dp"
-                    android:layout_height="20dp"
-                    android:layout_alignParentTop="true"
-                    android:layout_alignParentEnd="true"
-                    android:layout_alignParentRight="true"
-                    android:layout_centerInParent="true"
-                    android:layout_margin="15dp"
-                    android:background="@color/colorPrimary"
-                    android:src="@android:drawable/ic_menu_close_clear_cancel"
-                    android:tint="@android:color/holo_red_dark" />
-
-            </RelativeLayout>
-
             <View
                 android:id="@+id/border"
                 android:layout_width="match_parent"
                 android:layout_height="1px"
-                android:layout_below="@+id/seedViewScrollcon"
                 android:layout_margin="8dp"
                 android:alpha="0.16"
                 android:background="@color/blackBackgroundColor" />

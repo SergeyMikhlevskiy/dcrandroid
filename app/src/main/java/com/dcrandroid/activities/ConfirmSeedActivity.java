@@ -50,7 +50,7 @@ public class ConfirmSeedActivity extends AppCompatActivity {
         }
 
         setContentView(R.layout.confirm_seed_page);
-        ImageView buttonSeedClear = findViewById(R.id.button_clear_seed);
+//        ImageView buttonSeedClear = findViewById(R.id.button_clear_seed);
         Button btnConfirmSeed = findViewById(R.id.button_confirm_seed);
         Button btnDeleteSeed = findViewById(R.id.button_delete_seed);
 //        seedTv = findViewById(R.id.autoCompleteSeed);
@@ -91,12 +91,12 @@ public class ConfirmSeedActivity extends AppCompatActivity {
                 }
             }
         });
-        buttonSeedClear.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                confirmView.setText("");
-            }
-        });
+//        buttonSeedClear.setOnClickListener(new View.OnClickListener() {
+//            @Override
+//            public void onClick(View view) {
+//                confirmView.setText("");
+//            }
+//        });
         btnDeleteSeed.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
@@ -117,15 +117,15 @@ public class ConfirmSeedActivity extends AppCompatActivity {
                 }
             }
         });
-        confirmView = findViewById(R.id.seed_display_confirm);
-        seedTv.setOnItemClickListener(new AdapterView.OnItemClickListener() {
-            @Override
-            public void onItemClick(AdapterView<?> adapterView, View view, int i, long l) {
-                String s = (String)adapterView.getItemAtPosition(i);
-                confirmView.setText(String.format("%s %s", confirmView.getText().toString().trim(), s));
-                seedTv.setText("");
-            }
-        });
+//        confirmView = findViewById(R.id.seed_display_confirm);
+//        seedTv.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+//            @Override
+//            public void onItemClick(AdapterView<?> adapterView, View view, int i, long l) {
+//                String s = (String)adapterView.getItemAtPosition(i);
+//                confirmView.setText(String.format("%s %s", confirmView.getText().toString().trim(), s));
+//                seedTv.setText("");
+//            }
+//        });
 
         prepareData();
     }
