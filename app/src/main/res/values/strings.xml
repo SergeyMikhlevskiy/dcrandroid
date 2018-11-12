@@ -466,4 +466,6 @@
     <string name="crash_report_copied">Crash report copied successfully</string>
     <string name="hide_report">Hide Report</string>
     <string name="view_report">View Report</string>
+    <string name="share">Share</string>
+
 </resources>

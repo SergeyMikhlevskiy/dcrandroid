@@ -1,18 +1,23 @@
 package com.dcrandroid.fragments;
 
+import android.Manifest;
 import android.content.Context;
+import android.content.Intent;
+import android.content.pm.PackageManager;
 import android.graphics.Bitmap;
-import android.graphics.BitmapFactory;
 import android.graphics.Canvas;
 import android.graphics.Color;
-import android.graphics.Matrix;
 import android.graphics.drawable.Drawable;
+import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
-import android.os.Looper;
+import android.provider.MediaStore;
+import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
+import android.support.v4.app.ActivityCompat;
 import android.support.v4.content.ContextCompat;
 import android.support.v4.graphics.drawable.DrawableCompat;
+import android.text.BoringLayout;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuInflater;
@@ -28,7 +33,6 @@ import android.widget.Spinner;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import com.dcrandroid.BuildConfig;
 import com.dcrandroid.MainActivity;
 import com.dcrandroid.R;
 import com.dcrandroid.data.Account;
@@ -44,24 +48,21 @@ import com.google.zxing.qrcode.decoder.ErrorCorrectionLevel;
 
 import net.glxn.qrgen.android.MatrixToImageConfig;
 import net.glxn.qrgen.android.MatrixToImageWriter;
-import net.glxn.qrgen.android.QRCode;
-import net.glxn.qrgen.core.image.ImageType;
 
-import java.io.BufferedReader;
-import java.io.BufferedWriter;
 import java.io.ByteArrayOutputStream;
-import java.io.OutputStream;
-import java.io.OutputStreamWriter;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+
+import static android.support.v4.content.ContextCompat.checkSelfPermission;
 
 /**
  * Created by Macsleven on 28/11/2017.
  */
 
 public class ReceiveFragment extends android.support.v4.app.Fragment implements AdapterView.OnItemSelectedListener, View.OnTouchListener {
+    private static final int REQUEST_CODE = 123;
     ImageView imageView;
     LinearLayout ReceiveContainer;
     ArrayAdapter dataAdapter;
@@ -72,12 +73,14 @@ public class ReceiveFragment extends android.support.v4.app.Fragment implements 
     private DcrConstants constants;
     private Map<EncodeHintType, Object> qrHints = new HashMap<>();
     private Spinner accountSpinner;
+    private Bitmap generatedQR;
 
     @Override
     public void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setHasOptionsMenu(true);
     }
+
 
     @Nullable
     @Override
@@ -167,9 +170,9 @@ public class ReceiveFragment extends android.support.v4.app.Fragment implements 
                     300,
                     qrHints);
 
-            System.out.println("Image Width: "+ imageView.getWidth() +" Image Height: "+ imageView.getHeight());
+            System.out.println("Image Width: " + imageView.getWidth() + " Image Height: " + imageView.getHeight());
 
-            Bitmap generatedQR = MatrixToImageWriter.toBitmap(matrix, new MatrixToImageConfig(Color.BLACK, Color.TRANSPARENT));
+            generatedQR = MatrixToImageWriter.toBitmap(matrix, new MatrixToImageConfig(Color.BLACK, Color.TRANSPARENT));
 
             //TODO:  Requires a logo
 //            Bitmap tempLogo = BitmapFactory.decodeResource(getResources(), R.drawable.decred_logo);
@@ -225,6 +228,28 @@ public class ReceiveFragment extends android.support.v4.app.Fragment implements 
         return false;
     }
 
+    public void shareImageToApps() {
+        if (checkPermission() && generatedQR != null) {
+            Intent i = new Intent(Intent.ACTION_SEND);
+            i.setType("image/*");
+            i.putExtra(Intent.EXTRA_STREAM, getImageUri(getContext(), generatedQR));
+            try {
+                startActivity(Intent.createChooser(i, "Sending QR-code of generated address"));
+            } catch (android.content.ActivityNotFoundException ex) {
+                ex.printStackTrace();
+            }
+        } else {
+            ActivityCompat.requestPermissions(requireActivity(), new String[]{android.Manifest.permission.WRITE_EXTERNAL_STORAGE}, REQUEST_CODE);
+        }
+    }
+
+    public Uri getImageUri(Context inContext, Bitmap inImage) {
+        ByteArrayOutputStream bytes = new ByteArrayOutputStream();
+        inImage.compress(Bitmap.CompressFormat.JPEG, 100, bytes);
+        String path = MediaStore.Images.Media.insertImage(inContext.getContentResolver(), inImage, "Title", null);
+        return Uri.parse(path);
+    }
+
     public Bitmap getVectorDrawable(int drawableId) {
         Drawable drawable = ContextCompat.getDrawable(getContext(), drawableId);
         if (Build.VERSION.SDK_INT < Build.VERSION_CODES.LOLLIPOP) {
@@ -237,7 +262,19 @@ public class ReceiveFragment extends android.support.v4.app.Fragment implements 
         drawable.setBounds(0, 0, canvas.getWidth(), canvas.getHeight());
         drawable.draw(canvas);
 
-
         return bitmap;
+    }
+
+    private boolean checkPermission() {
+        int result = ContextCompat.checkSelfPermission(requireActivity(), android.Manifest.permission.WRITE_EXTERNAL_STORAGE);
+        return result == PackageManager.PERMISSION_GRANTED;
+    }
+
+    @Override
+    public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
+        switch (requestCode) {
+            case REQUEST_CODE:
+                break;
+        }
     }
 }
