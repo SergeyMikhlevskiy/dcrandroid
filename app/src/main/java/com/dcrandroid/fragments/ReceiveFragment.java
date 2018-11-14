@@ -1,7 +1,5 @@
 package com.dcrandroid.fragments;
 
-import android.Manifest;
-import android.content.Context;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.graphics.Bitmap;
@@ -11,13 +9,12 @@ import android.graphics.drawable.Drawable;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
-import android.provider.MediaStore;
+import android.os.Environment;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
-import android.support.v4.app.ActivityCompat;
 import android.support.v4.content.ContextCompat;
+import android.support.v4.content.FileProvider;
 import android.support.v4.graphics.drawable.DrawableCompat;
-import android.text.BoringLayout;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuInflater;
@@ -33,7 +30,6 @@ import android.widget.Spinner;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import com.dcrandroid.MainActivity;
 import com.dcrandroid.R;
 import com.dcrandroid.data.Account;
 import com.dcrandroid.data.Constants;
@@ -45,17 +41,20 @@ import com.google.zxing.EncodeHintType;
 import com.google.zxing.common.BitMatrix;
 import com.google.zxing.qrcode.QRCodeWriter;
 import com.google.zxing.qrcode.decoder.ErrorCorrectionLevel;
+import com.squareup.picasso.Picasso;
+import com.squareup.picasso.Target;
 
 import net.glxn.qrgen.android.MatrixToImageConfig;
 import net.glxn.qrgen.android.MatrixToImageWriter;
 
-import java.io.ByteArrayOutputStream;
+import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-
-import static android.support.v4.content.ContextCompat.checkSelfPermission;
 
 /**
  * Created by Macsleven on 28/11/2017.
@@ -74,6 +73,7 @@ public class ReceiveFragment extends android.support.v4.app.Fragment implements 
     private Map<EncodeHintType, Object> qrHints = new HashMap<>();
     private Spinner accountSpinner;
     private Bitmap generatedQR;
+    private Uri imageUri;
 
     @Override
     public void onCreate(@Nullable Bundle savedInstanceState) {
@@ -85,7 +85,6 @@ public class ReceiveFragment extends android.support.v4.app.Fragment implements 
     @Nullable
     @Override
     public View onCreateView(LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
-        //returning our layout file
         if (getContext() == null) {
             return null;
         }
@@ -138,6 +137,9 @@ public class ReceiveFragment extends android.support.v4.app.Fragment implements 
                     e.printStackTrace();
                 }
                 return true;
+            case R.id.share_qr_code:
+                shareImageToApps();
+                return true;
         }
         return super.onOptionsItemSelected(item);
     }
@@ -173,6 +175,7 @@ public class ReceiveFragment extends android.support.v4.app.Fragment implements 
             System.out.println("Image Width: " + imageView.getWidth() + " Image Height: " + imageView.getHeight());
 
             generatedQR = MatrixToImageWriter.toBitmap(matrix, new MatrixToImageConfig(Color.BLACK, Color.TRANSPARENT));
+            imageUri = saveImage(generatedQR);
 
             //TODO:  Requires a logo
 //            Bitmap tempLogo = BitmapFactory.decodeResource(getResources(), R.drawable.decred_logo);
@@ -193,7 +196,6 @@ public class ReceiveFragment extends android.support.v4.app.Fragment implements 
 //            int leftPosition = (generatedQR.getWidth() / 2) - (logoWidth / 2);
 //            int topPosition = (generatedQR.getHeight() / 2) - (logoHeight / 2);
 //            canvas.drawBitmap(decredLogo, leftPosition, topPosition, null);
-
             imageView.setImageBitmap(generatedQR);
         } catch (Exception e) {
             e.printStackTrace();
@@ -229,25 +231,48 @@ public class ReceiveFragment extends android.support.v4.app.Fragment implements 
     }
 
     public void shareImageToApps() {
-        if (checkPermission() && generatedQR != null) {
-            Intent i = new Intent(Intent.ACTION_SEND);
-            i.setType("image/*");
-            i.putExtra(Intent.EXTRA_STREAM, getImageUri(getContext(), generatedQR));
-            try {
-                startActivity(Intent.createChooser(i, "Sending QR-code of generated address"));
-            } catch (android.content.ActivityNotFoundException ex) {
-                ex.printStackTrace();
-            }
-        } else {
-            ActivityCompat.requestPermissions(requireActivity(), new String[]{android.Manifest.permission.WRITE_EXTERNAL_STORAGE}, REQUEST_CODE);
+        if (generatedQR != null) {
+            Picasso.get().load(imageUri).into(new Target() {
+                @Override
+                public void onBitmapLoaded(Bitmap bitmap, Picasso.LoadedFrom from) {
+                    Intent shareIntent = new Intent();
+                    shareIntent.setAction(Intent.ACTION_SEND);
+                    shareIntent.putExtra(Intent.EXTRA_STREAM, imageUri);
+                    shareIntent.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION);
+                    shareIntent.setType("image/*");
+                    startActivity(Intent.createChooser(shareIntent, "Choose an app"));
+                }
+
+                @Override
+                public void onBitmapFailed(Exception e, Drawable errorDrawable) {
+
+                }
+
+                @Override
+                public void onPrepareLoad(Drawable placeHolderDrawable) {
+
+                }
+            });
+
         }
     }
 
-    public Uri getImageUri(Context inContext, Bitmap inImage) {
-        ByteArrayOutputStream bytes = new ByteArrayOutputStream();
-        inImage.compress(Bitmap.CompressFormat.JPEG, 100, bytes);
-        String path = MediaStore.Images.Media.insertImage(inContext.getContentResolver(), inImage, "Title", null);
-        return Uri.parse(path);
+    private Uri saveImage(Bitmap image) {
+        Uri uri = null;
+        try {
+            File cachePath = new File(Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_PICTURES),
+                        "share_image_" + System.currentTimeMillis() + ".png");
+            FileOutputStream stream = new FileOutputStream(cachePath);
+            image.compress(Bitmap.CompressFormat.PNG, 90, stream);
+            stream.flush();
+            stream.close();
+            uri = FileProvider.getUriForFile(getActivity().getApplicationContext(), "com.decred.dcrandroid.fileprovider", cachePath);
+        } catch (FileNotFoundException e) {
+            e.printStackTrace();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        return uri;
     }
 
     public Bitmap getVectorDrawable(int drawableId) {
