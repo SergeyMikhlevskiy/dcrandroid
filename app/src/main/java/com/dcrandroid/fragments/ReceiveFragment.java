@@ -1,20 +1,15 @@
 package com.dcrandroid.fragments;
 
 import android.content.Intent;
-import android.content.pm.PackageManager;
 import android.graphics.Bitmap;
 import android.graphics.Canvas;
 import android.graphics.Color;
 import android.graphics.drawable.Drawable;
 import android.net.Uri;
-import android.os.Build;
 import android.os.Bundle;
 import android.os.Environment;
-import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
-import android.support.v4.content.ContextCompat;
 import android.support.v4.content.FileProvider;
-import android.support.v4.graphics.drawable.DrawableCompat;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuInflater;
@@ -41,8 +36,6 @@ import com.google.zxing.EncodeHintType;
 import com.google.zxing.common.BitMatrix;
 import com.google.zxing.qrcode.QRCodeWriter;
 import com.google.zxing.qrcode.decoder.ErrorCorrectionLevel;
-import com.squareup.picasso.Picasso;
-import com.squareup.picasso.Target;
 
 import net.glxn.qrgen.android.MatrixToImageConfig;
 import net.glxn.qrgen.android.MatrixToImageWriter;
@@ -51,7 +44,9 @@ import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -59,9 +54,8 @@ import java.util.Map;
 /**
  * Created by Macsleven on 28/11/2017.
  */
-
 public class ReceiveFragment extends android.support.v4.app.Fragment implements AdapterView.OnItemSelectedListener, View.OnTouchListener {
-    private static final int REQUEST_CODE = 123;
+
     ImageView imageView;
     LinearLayout ReceiveContainer;
     ArrayAdapter dataAdapter;
@@ -73,7 +67,7 @@ public class ReceiveFragment extends android.support.v4.app.Fragment implements 
     private Map<EncodeHintType, Object> qrHints = new HashMap<>();
     private Spinner accountSpinner;
     private Bitmap generatedQR;
-    private Uri imageUri;
+    private Uri generatedUri;
 
     @Override
     public void onCreate(@Nullable Bundle savedInstanceState) {
@@ -127,7 +121,7 @@ public class ReceiveFragment extends android.support.v4.app.Fragment implements 
 
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
-        switch (item.getItemId()){
+        switch (item.getItemId()) {
             case R.id.generate_address:
                 try {
                     int position = accountSpinner.getSelectedItemPosition();
@@ -175,28 +169,10 @@ public class ReceiveFragment extends android.support.v4.app.Fragment implements 
             System.out.println("Image Width: " + imageView.getWidth() + " Image Height: " + imageView.getHeight());
 
             generatedQR = MatrixToImageWriter.toBitmap(matrix, new MatrixToImageConfig(Color.BLACK, Color.TRANSPARENT));
-            imageUri = saveImage(generatedQR);
 
-            //TODO:  Requires a logo
-//            Bitmap tempLogo = BitmapFactory.decodeResource(getResources(), R.drawable.decred_logo);
-//
-//            int logoHeight = (int) (generatedQR.getHeight() * 0.30);
-//            int logoWidth = (int) (generatedQR.getWidth() * 0.30);
-//
-//            Bitmap decredLogo = Bitmap.createScaledBitmap(tempLogo, logoWidth, logoHeight, false);
-//
-//            System.out.println("Decred Logo Height: "+ decredLogo.getHeight()+ " Width: "+decredLogo.getWidth());
-//
-//            Bitmap bmOverlay = Bitmap.createBitmap(generatedQR.getWidth(),
-//                    generatedQR.getHeight(), generatedQR.getConfig());
-//
-//            Canvas canvas = new Canvas(bmOverlay);
-//            canvas.drawBitmap(generatedQR, new Matrix(), null);
-//
-//            int leftPosition = (generatedQR.getWidth() / 2) - (logoWidth / 2);
-//            int topPosition = (generatedQR.getHeight() / 2) - (logoHeight / 2);
-//            canvas.drawBitmap(decredLogo, leftPosition, topPosition, null);
             imageView.setImageBitmap(generatedQR);
+            Bitmap tempBitmap = getBitmapFromView(imageView);
+            generatedUri = getUriFromBitmap(tempBitmap);
         } catch (Exception e) {
             e.printStackTrace();
             Toast.makeText(ReceiveFragment.this.getContext(), getString(R.string.error_occurred_getting_address), Toast.LENGTH_SHORT).show();
@@ -231,39 +207,27 @@ public class ReceiveFragment extends android.support.v4.app.Fragment implements 
     }
 
     public void shareImageToApps() {
-        if (generatedQR != null) {
-            Picasso.get().load(imageUri).into(new Target() {
-                @Override
-                public void onBitmapLoaded(Bitmap bitmap, Picasso.LoadedFrom from) {
-                    Intent shareIntent = new Intent();
-                    shareIntent.setAction(Intent.ACTION_SEND);
-                    shareIntent.putExtra(Intent.EXTRA_STREAM, imageUri);
-                    shareIntent.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION);
-                    shareIntent.setType("image/*");
-                    startActivity(Intent.createChooser(shareIntent, "Choose an app"));
-                }
-
-                @Override
-                public void onBitmapFailed(Exception e, Drawable errorDrawable) {
-
-                }
-
-                @Override
-                public void onPrepareLoad(Drawable placeHolderDrawable) {
-
-                }
-            });
-
+        if (generatedUri != null) {
+            Intent shareIntent = new Intent();
+            shareIntent.setAction(Intent.ACTION_SEND);
+            shareIntent.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION);
+            shareIntent.setDataAndType(generatedUri, getContext().getContentResolver().getType(generatedUri));
+            shareIntent.putExtra(Intent.EXTRA_STREAM, generatedUri);
+            startActivity(Intent.createChooser(shareIntent, getString(R.string.share_address_via)));
+        } else {
+            Toast.makeText(getActivity(), R.string.address_not_found, Toast.LENGTH_SHORT).show();
         }
     }
 
-    private Uri saveImage(Bitmap image) {
+    private Uri getUriFromBitmap(Bitmap image) {
         Uri uri = null;
         try {
-            File cachePath = new File(Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_PICTURES),
-                        "share_image_" + System.currentTimeMillis() + ".png");
+            SimpleDateFormat formatter = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+            Date now = new Date();
+            String fileName = formatter.format(now) + ".png";
+            File cachePath = new File(getActivity().getApplicationContext().getExternalFilesDir(Environment.DIRECTORY_PICTURES), "wallet_address: " + fileName);
             FileOutputStream stream = new FileOutputStream(cachePath);
-            image.compress(Bitmap.CompressFormat.PNG, 90, stream);
+            image.compress(Bitmap.CompressFormat.PNG, 100, stream);
             stream.flush();
             stream.close();
             uri = FileProvider.getUriForFile(getActivity().getApplicationContext(), "com.decred.dcrandroid.fileprovider", cachePath);
@@ -275,31 +239,17 @@ public class ReceiveFragment extends android.support.v4.app.Fragment implements 
         return uri;
     }
 
-    public Bitmap getVectorDrawable(int drawableId) {
-        Drawable drawable = ContextCompat.getDrawable(getContext(), drawableId);
-        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.LOLLIPOP) {
-            drawable = (DrawableCompat.wrap(drawable)).mutate();
+    private Bitmap getBitmapFromView(View view) {
+        Bitmap returnedBitmap = Bitmap.createBitmap(view.getWidth(), view.getHeight(), Bitmap.Config.ARGB_8888);
+        Canvas canvas = new Canvas(returnedBitmap);
+        Drawable bgDrawable = view.getBackground();
+        if (bgDrawable != null) {
+            bgDrawable.draw(canvas);
+        } else {
+            canvas.drawColor(Color.WHITE);
         }
-
-        Bitmap bitmap = Bitmap.createBitmap(drawable.getMinimumWidth(),
-                drawable.getIntrinsicHeight(), Bitmap.Config.ARGB_8888);
-        Canvas canvas = new Canvas(bitmap);
-        drawable.setBounds(0, 0, canvas.getWidth(), canvas.getHeight());
-        drawable.draw(canvas);
-
-        return bitmap;
+        view.draw(canvas);
+        return returnedBitmap;
     }
 
-    private boolean checkPermission() {
-        int result = ContextCompat.checkSelfPermission(requireActivity(), android.Manifest.permission.WRITE_EXTERNAL_STORAGE);
-        return result == PackageManager.PERMISSION_GRANTED;
-    }
-
-    @Override
-    public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
-        switch (requestCode) {
-            case REQUEST_CODE:
-                break;
-        }
-    }
 }
