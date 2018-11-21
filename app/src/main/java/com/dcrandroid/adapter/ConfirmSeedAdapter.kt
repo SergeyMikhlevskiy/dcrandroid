@@ -12,7 +12,7 @@ import android.widget.ArrayAdapter
 import com.dcrandroid.R
 import kotlinx.android.synthetic.main.saved_seeds_list_row.view.*
 
-data class InputSeed(val number: Int, val phrase: String)
+data class InputSeed(val number: Int, var phrase: String)
 
 class ConfirmSeedAdapter(private val seedItems: List<InputSeed>, private val allStringSeedArray: ArrayList<String>,
                          val context: Context, val saveSeed: (InputSeed) -> Unit, val removeSeed: (InputSeed) -> Unit) : RecyclerView.Adapter<ConfirmSeedAdapter.ViewHolder>() {
@@ -36,7 +36,6 @@ class ConfirmSeedAdapter(private val seedItems: List<InputSeed>, private val all
     override fun onBindViewHolder(holder: ViewHolder, position: Int) {
         val str = "Word #${seedItems[position].number + 1}"
         val hintAdapter = ArrayAdapter<String>(context, android.R.layout.simple_dropdown_item_1line, allStringSeedArray)
-        val currentSeed = seedItems[position].phrase
 
         holder.savedSeed.completionHint = context.getString(R.string.tap_to_select)
         holder.savedSeed.setSingleLine()
@@ -48,16 +47,15 @@ class ConfirmSeedAdapter(private val seedItems: List<InputSeed>, private val all
             val s = parent.getItemAtPosition(pos) as String
             holder.savedSeed.setText(s)
             holder.savedSeed.setSelection(holder.savedSeed.text.length)
+            seedItems[holder.adapterPosition].phrase = s
+            saveSeed(seedItems[holder.adapterPosition])
         }
         holder.savedSeed.addTextChangedListener(object : TextWatcher {
             override fun afterTextChanged(s: Editable?) {
-                if (s.toString() == currentSeed) {
-                    saveSeed(seedItems[holder.adapterPosition])
-                }
-                if(s.toString().isNotEmpty()) {
-                    holder.ivClearText.visibility = View.VISIBLE
+                if (s.isNullOrEmpty()) {
+                    holder.ivClearText.visibility = View.GONE
                 } else {
-                    holder.ivClearText.visibility = View.INVISIBLE
+                    holder.ivClearText.visibility = View.VISIBLE
                 }
             }
 

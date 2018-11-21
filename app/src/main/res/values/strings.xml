@@ -468,4 +468,5 @@
     <string name="hide_report">Hide Report</string>
     <string name="view_report">View Report</string>
     <string name="clearAll">Clear All</string>
+    <string name="notAllSeedsEntered">Not all seeds are entered. Please, check input fields and enter all seeds.</string>
 </resources>
