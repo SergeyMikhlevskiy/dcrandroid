@@ -5,7 +5,6 @@ import android.os.Bundle
 import android.support.v7.app.AppCompatActivity
 import android.support.v7.widget.LinearLayoutManager
 import android.util.Log
-import android.view.WindowManager
 import android.widget.Toast
 import com.dcrandroid.R
 import com.dcrandroid.adapter.ConfirmSeedAdapter
@@ -25,6 +24,7 @@ class ConfirmSeedActivity : AppCompatActivity() {
     private val seedsForInput = ArrayList<InputSeed>()
     private val seedsFromAdapter = ArrayList<InputSeed>()
     private var sortedList = listOf<InputSeed>()
+    private lateinit var seedAdapter: ConfirmSeedAdapter
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -34,7 +34,12 @@ class ConfirmSeedActivity : AppCompatActivity() {
         recyclerViewSeeds.layoutManager = linearLayoutManager
 
         button_delete_seed.setOnClickListener {
-        //TODO: implement removing all entered seeds via "Clear All" button
+            recyclerViewSeeds.removeAllViewsInLayout()
+            recyclerViewSeeds.adapter = null
+            sortedList = emptyList()
+            seedsFromAdapter.clear()
+            initAdapter()
+            seedAdapter.notifyDataSetChanged()
         }
         button_confirm_seed.setOnClickListener { confirmSeed(sortedList) }
         prepareData()
@@ -66,7 +71,7 @@ class ConfirmSeedActivity : AppCompatActivity() {
     }
 
     private fun initAdapter() {
-        recyclerViewSeeds.adapter = ConfirmSeedAdapter(seedsForInput.distinct(), allSeeds, applicationContext,
+        seedAdapter = ConfirmSeedAdapter(seedsForInput.distinct(), allSeeds, applicationContext,
                 { savedSeed: InputSeed ->
                     seedsFromAdapter.add(savedSeed)
                     sortedList = seedsFromAdapter.sortedWith(compareBy { it.number }).distinct()
@@ -80,6 +85,7 @@ class ConfirmSeedActivity : AppCompatActivity() {
                     sortedList = seedsFromAdapter.sortedWith(compareBy { it.number }).distinct()
                     Log.d(CONFIRM_SEED_ACTIVITY, "sortedList after removing: $sortedList")
                 })
+        recyclerViewSeeds.adapter = seedAdapter
     }
 
     private fun confirmSeed(sortedList: List<InputSeed>) {

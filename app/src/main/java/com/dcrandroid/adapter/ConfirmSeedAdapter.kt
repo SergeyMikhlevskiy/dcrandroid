@@ -18,7 +18,8 @@ class ConfirmSeedAdapter(private val seedItems: List<InputSeed>, private val all
                          val context: Context, val saveSeed: (InputSeed) -> Unit, val removeSeed: (InputSeed) -> Unit) : RecyclerView.Adapter<ConfirmSeedAdapter.ViewHolder>() {
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ViewHolder {
-        return ViewHolder(LayoutInflater.from(context).inflate(R.layout.saved_seeds_list_row, parent, false))
+        val view = LayoutInflater.from(context).inflate(R.layout.saved_seeds_list_row, parent, false)
+        return ViewHolder(view)
     }
 
     override fun getItemCount(): Int {
@@ -26,6 +27,7 @@ class ConfirmSeedAdapter(private val seedItems: List<InputSeed>, private val all
     }
 
     override fun getItemId(position: Int): Long {
+        setHasStableIds(true)
         return position.toLong()
     }
 
