@@ -54,11 +54,12 @@ class ConfirmSeedAdapter(private val seedItems: List<InputSeed>, private val all
         }
         holder.savedSeed.addTextChangedListener(object : TextWatcher {
             override fun afterTextChanged(s: Editable?) {
-                if (s.isNullOrEmpty()) {
-                    holder.ivClearText.visibility = View.GONE
-                } else {
+                if (s!!.isNotEmpty()) {
                     holder.ivClearText.visibility = View.VISIBLE
+                } else if (s.isNullOrEmpty()) {
+                    holder.ivClearText.visibility = View.GONE
                 }
+
             }
 
             override fun beforeTextChanged(s: CharSequence?, start: Int, count: Int, after: Int) {
@@ -70,6 +71,14 @@ class ConfirmSeedAdapter(private val seedItems: List<InputSeed>, private val all
         holder.ivClearText.setOnClickListener {
             holder.savedSeed.text.clear()
             removeSeed(seedItems[holder.adapterPosition])
+        }
+
+        holder.savedSeed.setOnFocusChangeListener { _, isFocused ->
+            if (!isFocused) {
+                holder.ivClearText.visibility = View.GONE
+            } else if (isFocused && holder.savedSeed.text.isNotEmpty()) {
+                holder.ivClearText.visibility = View.VISIBLE
+            }
         }
     }
 
