@@ -25,15 +25,18 @@ class ConfirmSeedActivity : AppCompatActivity() {
     private var allSeeds = ArrayList<String>()
     private lateinit var linearLayoutManager: LinearLayoutManager
     private val seedsForInput = ArrayList<InputSeed>()
-    private val seedsFromAdapter = ArrayList<InputSeed>()
+    private val arrayOfSeedLists = ArrayList<ArrayList<InputSeed>>()
+    private val confirmedSeedsArray = ArrayList<InputSeed>()
     private var sortedList = listOf<InputSeed>()
+    private val shuffledSeeds = ArrayList<InputSeed>()
     private lateinit var restoreWalletAdapter: RestoreWalletAdapter
     private lateinit var createWalletAdapter: CreateWalletAdapter
     private var confirmClicks = 0
     private var lastConfirmClick: Long = 0
     private var clickThread: Thread? = null
     private lateinit var currentSeed: InputSeed
-    private val arrayOfRandomSeeds = ArrayList<String>()
+    private val arrayOfRandomSeeds = ArrayList<InputSeed>()
+    private var correctSeedPosition: Int = 0
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -53,11 +56,9 @@ class ConfirmSeedActivity : AppCompatActivity() {
                 recyclerViewSeeds.removeAllViewsInLayout()
                 recyclerViewSeeds.adapter = null
                 sortedList = emptyList()
-                seedsFromAdapter.clear()
+                confirmedSeedsArray.clear()
                 initOldWalletAdapter()
                 restoreWalletAdapter.notifyDataSetChanged()
-            } else {
-                createWalletAdapter.isRemoveItem = true
             }
         }
         button_confirm_seed.setOnClickListener { confirmSeed(sortedList) }
@@ -68,22 +69,16 @@ class ConfirmSeedActivity : AppCompatActivity() {
         val bundle = intent.extras
         val temp = arrayOfNulls<String>(33)
         if (!bundle.isEmpty) {
-            var inputSeed: InputSeed
             seed = bundle.getString(Constants.SEED)
             restore = bundle.getBoolean(Constants.RESTORE)
             allSeeds = ArrayList(seed.split(" "))
             if (restore) {
                 temp.forEachIndexed { number, _ ->
-                    inputSeed = InputSeed(number, " ")
-                    seedsForInput.add(inputSeed)
+                    seedsForInput.add(InputSeed(number, " "))
                     initOldWalletAdapter()
                 }
             } else {
-                allSeeds.forEachIndexed { number, seed ->
-                    inputSeed = InputSeed(number, seed)
-                    seedsForInput.add(inputSeed)
-                    initNewWalletAdapter()
-                }
+                initNewWalletAdapter()
             }
         }
     }
@@ -91,71 +86,63 @@ class ConfirmSeedActivity : AppCompatActivity() {
     private fun initOldWalletAdapter() {
         restoreWalletAdapter = RestoreWalletAdapter(seedsForInput.distinct(), allSeeds, applicationContext,
                 { savedSeed: InputSeed ->
-                    seedsFromAdapter.add(savedSeed)
+                    confirmedSeedsArray.add(savedSeed)
                     currentSeed = savedSeed
-                    sortedList = seedsFromAdapter.sortedWith(compareBy { it.number }).distinct()
+                    sortedList = confirmedSeedsArray.sortedWith(compareBy { it.number }).distinct()
                 },
                 { removeSeed: InputSeed ->
-                    seedsFromAdapter.clear()
-                    seedsFromAdapter.addAll(sortedList)
-                    seedsFromAdapter.remove(removeSeed)
-                    sortedList = seedsFromAdapter.sortedWith(compareBy { it.number }).distinct()
+                    confirmedSeedsArray.clear()
+                    confirmedSeedsArray.addAll(sortedList)
+                    confirmedSeedsArray.remove(removeSeed)
+                    sortedList = confirmedSeedsArray.sortedWith(compareBy { it.number }).distinct()
                 })
         recyclerViewSeeds.adapter = restoreWalletAdapter
     }
 
     private fun initNewWalletAdapter() {
-        rlRandomSeeds.visibility = View.VISIBLE
-        createWalletAdapter = CreateWalletAdapter(seedsForInput.distinct(), applicationContext,
-                { seedFromAdapter: InputSeed ->
-                    currentSeed = seedFromAdapter
-                }, { seedFromUser: InputSeed ->
-
-        }, false)
+        createWalletAdapter = CreateWalletAdapter(applicationContext, arrayOfSeedLists)
         recyclerViewSeeds.adapter = createWalletAdapter
+        generateRandomSeeds()
     }
 
 
-    private fun IntRange.random() = Random().nextInt((allSeeds.size + 1) - start)
-
     private fun generateRandomSeeds() {
-
+        Log.d("confirmSeed", "generateRandomSeeds")
         val firstRandom = (1..allSeeds.size).random()
         val secondRandom = (1..allSeeds.size).random()
-        val currentItemPosition = (currentSeed.number)
+        val currentItemPosition = (correctSeedPosition)
 
         if (firstRandom != secondRandom && firstRandom != currentItemPosition && secondRandom != currentItemPosition) {
             for (item in allSeeds) {
-                if (item == allSeeds[firstRandom]) {
-                    arrayOfRandomSeeds.add(item)
-                }
-                if (item == allSeeds[secondRandom]) {
-                    arrayOfRandomSeeds.add(item)
-                }
-                if (item == allSeeds[currentItemPosition]) {
-                    arrayOfRandomSeeds.add(item)
+                when (item) {
+                    allSeeds[firstRandom] -> arrayOfRandomSeeds.add(InputSeed(firstRandom, item))
+                    allSeeds[secondRandom] -> arrayOfRandomSeeds.add(InputSeed(secondRandom, item))
+                    allSeeds[currentItemPosition] -> arrayOfRandomSeeds.add(InputSeed(currentItemPosition, item))
                 }
             }
+            showRandomSeeds()
         } else {
             generateRandomSeeds()
         }
-        arrayOfRandomSeeds.shuffle()
     }
 
     private fun showRandomSeeds() {
-        tvFirstSeed.text = arrayOfRandomSeeds[0]
-        tvFirstSeed.text = arrayOfRandomSeeds[1]
-        tvFirstSeed.text = arrayOfRandomSeeds[2]
-    }
-
-    private fun textListeners() {
-        tvFirstSeed.setOnClickListener { }
-        tvSecondSeed.setOnClickListener {  }
-        tvThirdSeed.setOnClickListener {  }
+        rlRandomSeeds.visibility = View.VISIBLE
+        shuffledSeeds.addAll(arrayOfRandomSeeds.shuffled().distinct())
+        tvCorrectWordNumber.text = String.format(getString(R.string.correctWordIs) + (correctSeedPosition + 1))
+        tvFirstSeed.text = shuffledSeeds[0].phrase
+        tvSecondSeed.text = shuffledSeeds[1].phrase
+        tvThirdSeed.text = shuffledSeeds[2].phrase
         arrayOfRandomSeeds.clear()
+        textViewClickListeners()
     }
 
-
+    private fun textViewClickListeners() {
+        val clickListener = TextViewClickListener()
+        tvFirstSeed.setOnClickListener(clickListener)
+        tvSecondSeed.setOnClickListener(clickListener)
+        tvThirdSeed.setOnClickListener(clickListener)
+    }
 
     override fun onClick(v: View?) {
         var lastClick: Long = 0
@@ -226,5 +213,18 @@ class ConfirmSeedActivity : AppCompatActivity() {
             Toast.makeText(applicationContext, getString(R.string.theInputFieldIsEmpty), Toast.LENGTH_SHORT).show()
         }
     }
+
+    inner class TextViewClickListener : View.OnClickListener {
+        override fun onClick(view: View?) {
+            confirmedSeedsArray.add(InputSeed(correctSeedPosition, view.toString()))
+            arrayOfSeedLists.add(correctSeedPosition, shuffledSeeds)
+            createWalletAdapter.notifyDataSetChanged()
+            shuffledSeeds.clear()
+            correctSeedPosition++
+            generateRandomSeeds()
+        }
+    }
+
+    private fun IntRange.random() = Random().nextInt((allSeeds.size + 1) - start)
 
 }
