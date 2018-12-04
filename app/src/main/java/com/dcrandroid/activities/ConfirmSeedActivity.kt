@@ -38,7 +38,6 @@ class ConfirmSeedActivity : AppCompatActivity() {
     private var currentSeedPosition: Int = 0
     private lateinit var restoreWalletAdapter: RestoreWalletAdapter
     private lateinit var createWalletAdapter: CreateWalletAdapter
-    private lateinit var currentSeed: InputSeed
     private lateinit var linearLayoutManager: LinearLayoutManager
 
 
@@ -56,16 +55,19 @@ class ConfirmSeedActivity : AppCompatActivity() {
         recyclerViewSeeds.layoutManager = linearLayoutManager
 
         button_delete_seed.setOnClickListener {
+            recyclerViewSeeds.removeAllViewsInLayout()
+            recyclerViewSeeds.adapter = null
+            sortedList = emptyList()
+            confirmedSeedsArray.clear()
+
             if (restore) {
-                recyclerViewSeeds.removeAllViewsInLayout()
-                recyclerViewSeeds.adapter = null
-                sortedList = emptyList()
-                confirmedSeedsArray.clear()
-                initOldWalletAdapter()
                 val imm = getSystemService(Context.INPUT_METHOD_SERVICE) as InputMethodManager
                 imm.showSoftInput(recyclerViewSeeds, InputMethodManager.SHOW_IMPLICIT)
-                restoreWalletAdapter.notifyDataSetChanged()
+                initOldWalletAdapter()
+            } else {
+                initNewWalletAdapter()
             }
+
         }
 
         button_confirm_seed.setOnClickListener(this)
@@ -96,7 +98,6 @@ class ConfirmSeedActivity : AppCompatActivity() {
         restoreWalletAdapter = RestoreWalletAdapter(seedsForInput.distinct(), allSeeds, applicationContext,
                 { savedSeed: InputSeed ->
                     confirmedSeedsArray.add(savedSeed)
-                    currentSeed = savedSeed
                     sortedList = confirmedSeedsArray.sortedWith(compareBy { it.number }).distinct()
                 },
                 { removeSeed: InputSeed ->
@@ -110,7 +111,17 @@ class ConfirmSeedActivity : AppCompatActivity() {
     }
 
     private fun initNewWalletAdapter() {
-        createWalletAdapter = CreateWalletAdapter(applicationContext, arrayOfSeedLists)
+        createWalletAdapter = CreateWalletAdapter(applicationContext, arrayOfSeedLists, { savedSeed: InputSeed ->
+            confirmedSeedsArray.add(savedSeed)
+            sortedList = confirmedSeedsArray.sortedWith(compareBy { it.number }).distinct()
+            Log.d("confirmSeed", "sortedList input: $sortedList")
+
+        }, { changeSeed: InputSeed ->
+            confirmedSeedsArray.clear()
+            confirmedSeedsArray.addAll(sortedList)
+            sortedList = confirmedSeedsArray.sortedWith(compareBy { it.number }).distinct()
+
+        })
         recyclerViewSeeds.adapter = createWalletAdapter
         generateRandomSeeds()
     }
@@ -140,20 +151,23 @@ class ConfirmSeedActivity : AppCompatActivity() {
             shuffledSeeds.addAll(arrayOfRandomSeeds.shuffled().distinct())
             if(shuffledSeeds.size == 3) {
                 arrayOfSeedLists.add(MultiSeed(shuffledSeeds[0], shuffledSeeds[1], shuffledSeeds[2]))
-            } else {
-                shuffledSeeds.clear()
-                arrayOfRandomSeeds.clear()
-                generateRandomSeeds()
+                currentSeedPosition++
+                createWalletAdapter.notifyDataSetChanged()
             }
-            createWalletAdapter.notifyDataSetChanged()
             arrayOfRandomSeeds.clear()
             shuffledSeeds.clear()
-            currentSeedPosition++
             generateRandomSeeds()
         } else if (currentSeedPosition == 32) {
             shuffledSeeds.addAll(arrayOfRandomSeeds.shuffled().distinct())
-            arrayOfSeedLists.add(MultiSeed(shuffledSeeds[0], shuffledSeeds[1], shuffledSeeds[2]))
-            createWalletAdapter.notifyDataSetChanged()
+
+            if(shuffledSeeds.size == 3) {
+                arrayOfSeedLists.add(MultiSeed(shuffledSeeds[0], shuffledSeeds[1], shuffledSeeds[2]))
+                createWalletAdapter.notifyDataSetChanged()
+            } else {
+                arrayOfRandomSeeds.clear()
+                shuffledSeeds.clear()
+                generateRandomSeeds()
+            }
             arrayOfRandomSeeds.clear()
             shuffledSeeds.clear()
         }
