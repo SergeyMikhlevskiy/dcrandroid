@@ -3,6 +3,7 @@ package com.dcrandroid.activities
 import android.content.Context
 import android.content.Intent
 import android.os.Bundle
+import android.support.v4.content.ContextCompat
 import android.support.v7.app.AppCompatActivity
 import android.support.v7.widget.LinearLayoutManager
 import android.util.Log
@@ -25,6 +26,7 @@ class ConfirmSeedActivity : AppCompatActivity() {
 
     private var seed = ""
     private var restore: Boolean = false
+    private var isConfirmSeed = false
     private var allSeeds = ArrayList<String>()
     private val seedsForInput = ArrayList<InputSeed>()
     private val confirmedSeedsArray = ArrayList<InputSeed>()
@@ -32,6 +34,7 @@ class ConfirmSeedActivity : AppCompatActivity() {
     private val arrayOfRandomSeeds = ArrayList<InputSeed>()
     private val arrayOfSeedLists = ArrayList<MultiSeed>()
     private val shuffledSeeds = ArrayList<InputSeed>()
+    private var finalSeedsString = ""
     private var confirmClicks = 0
     private var lastConfirmClick: Long = 0
     private var clickThread: Thread? = null
@@ -59,7 +62,11 @@ class ConfirmSeedActivity : AppCompatActivity() {
             recyclerViewSeeds.adapter = null
             sortedList = emptyList()
             confirmedSeedsArray.clear()
-
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN) {
+                button_confirm_seed.background = ContextCompat.getDrawable(applicationContext, R.drawable.btn_shape2)
+            } else {
+                button_confirm_seed.setBackgroundDrawable(ContextCompat.getDrawable(applicationContext, R.drawable.btn_shape2))
+            }
             if (restore) {
                 val imm = getSystemService(Context.INPUT_METHOD_SERVICE) as InputMethodManager
                 imm.showSoftInput(recyclerViewSeeds, InputMethodManager.SHOW_IMPLICIT)
@@ -69,7 +76,6 @@ class ConfirmSeedActivity : AppCompatActivity() {
             }
 
         }
-
         button_confirm_seed.setOnClickListener(this)
 
         prepareData()
@@ -82,7 +88,6 @@ class ConfirmSeedActivity : AppCompatActivity() {
             seed = bundle.getString(Constants.SEED)
             restore = bundle.getBoolean(Constants.RESTORE)
             allSeeds = ArrayList(seed.split(" "))
-            Log.d("confirmSeed", "allSeeds: $allSeeds")
             if (restore) {
                 temp.forEachIndexed { number, _ ->
                     seedsForInput.add(InputSeed(number, " "))
@@ -98,28 +103,31 @@ class ConfirmSeedActivity : AppCompatActivity() {
         restoreWalletAdapter = RestoreWalletAdapter(seedsForInput.distinct(), allSeeds, applicationContext,
                 { savedSeed: InputSeed ->
                     confirmedSeedsArray.add(savedSeed)
+                    Log.d("confirmSeed", "savedSeed: $savedSeed")
                     sortedList = confirmedSeedsArray.sortedWith(compareBy { it.number }).distinct()
+                    Log.d("confirmSeed", "sortedList size: ${sortedList.size}")
                 },
                 { removeSeed: InputSeed ->
                     confirmedSeedsArray.clear()
                     confirmedSeedsArray.addAll(sortedList)
                     confirmedSeedsArray.remove(removeSeed)
+                    Log.d("confirmSeed", "removeSeed: $removeSeed")
                     sortedList = confirmedSeedsArray.sortedWith(compareBy { it.number }).distinct()
+                    Log.d("confirmSeed", "sortedList size: ${sortedList.size}")
                 })
 
         recyclerViewSeeds.adapter = restoreWalletAdapter
     }
 
     private fun initNewWalletAdapter() {
-        createWalletAdapter = CreateWalletAdapter(applicationContext, arrayOfSeedLists, { savedSeed: InputSeed ->
-            confirmedSeedsArray.add(savedSeed)
-            sortedList = confirmedSeedsArray.sortedWith(compareBy { it.number }).distinct()
-            Log.d("confirmSeed", "sortedList input: $sortedList")
-
-        }, { changeSeed: InputSeed ->
+        createWalletAdapter = CreateWalletAdapter(applicationContext, arrayOfSeedLists, { enteredSeeds: ArrayList<InputSeed> ->
             confirmedSeedsArray.clear()
-            confirmedSeedsArray.addAll(sortedList)
+            confirmedSeedsArray.addAll(enteredSeeds)
             sortedList = confirmedSeedsArray.sortedWith(compareBy { it.number }).distinct()
+        }, { isAllEntered: Boolean ->
+            if (isAllEntered && sortedList.size == 33) {
+                handleSingleTap(sortedList)
+            }
 
         })
         recyclerViewSeeds.adapter = createWalletAdapter
@@ -147,29 +155,28 @@ class ConfirmSeedActivity : AppCompatActivity() {
     }
 
     private fun addSeedsToAdapter() {
-        if (currentSeedPosition < 32) {
-            shuffledSeeds.addAll(arrayOfRandomSeeds.shuffled().distinct())
-            if(shuffledSeeds.size == 3) {
-                arrayOfSeedLists.add(MultiSeed(shuffledSeeds[0], shuffledSeeds[1], shuffledSeeds[2]))
-                currentSeedPosition++
-                createWalletAdapter.notifyDataSetChanged()
+        shuffledSeeds.addAll(arrayOfRandomSeeds.shuffled().distinct())
+        if(shuffledSeeds.size == 3) {
+            when {
+                currentSeedPosition < 32 -> {
+                    arrayOfSeedLists.add(MultiSeed(shuffledSeeds[0], shuffledSeeds[1], shuffledSeeds[2]))
+                    createWalletAdapter.notifyDataSetChanged()
+                    currentSeedPosition++
+                    arrayOfRandomSeeds.clear()
+                    shuffledSeeds.clear()
+                    generateRandomSeeds()
+                }
+                currentSeedPosition == 32 -> {
+                    arrayOfSeedLists.add(MultiSeed(shuffledSeeds[0], shuffledSeeds[1], shuffledSeeds[2]))
+                    createWalletAdapter.notifyDataSetChanged()
+                    arrayOfRandomSeeds.clear()
+                    shuffledSeeds.clear()
+                }
             }
+        } else {
             arrayOfRandomSeeds.clear()
             shuffledSeeds.clear()
             generateRandomSeeds()
-        } else if (currentSeedPosition == 32) {
-            shuffledSeeds.addAll(arrayOfRandomSeeds.shuffled().distinct())
-
-            if(shuffledSeeds.size == 3) {
-                arrayOfSeedLists.add(MultiSeed(shuffledSeeds[0], shuffledSeeds[1], shuffledSeeds[2]))
-                createWalletAdapter.notifyDataSetChanged()
-            } else {
-                arrayOfRandomSeeds.clear()
-                shuffledSeeds.clear()
-                generateRandomSeeds()
-            }
-            arrayOfRandomSeeds.clear()
-            shuffledSeeds.clear()
         }
     }
 
@@ -195,7 +202,7 @@ class ConfirmSeedActivity : AppCompatActivity() {
                     }
                     if (lastClick > CLICK_THRESHOLD) {
                         runOnUiThread {
-                            handleSingleTap(sortedList)
+                            confirmSeeds(isConfirmSeed)
                         }
                     }
 
@@ -219,21 +226,41 @@ class ConfirmSeedActivity : AppCompatActivity() {
         lastConfirmClick = System.currentTimeMillis()
     }
 
+    private fun confirmSeeds(isCorrectSeeds: Boolean) {
+        if (isCorrectSeeds) {
+            val intent = Intent(this, EncryptWallet::class.java)
+            intent.putExtra(Constants.SEED, finalSeedsString)
+            startActivity(intent)
+        } else {
+            handleSingleTap(sortedList)
+        }
+    }
+
     private fun handleSingleTap(sortedList: List<InputSeed>) {
         val dcrConstants = DcrConstants.getInstance()
-        val intent = Intent(this, EncryptWallet::class.java)
         val isAllSeeds = (sortedList.size == 33)
 
         if (sortedList.isNotEmpty() && isAllSeeds) {
-            val finalSeedsString = sortedList.joinToString(" ", "", "", -1, "...") { it.phrase }
+            finalSeedsString = sortedList.joinToString(" ", "", "", -1, "...") { it.phrase }
             val isVerifiedFromDcrConstants = restore && dcrConstants.wallet.verifySeed(finalSeedsString)
             val isTypedSeedsCorrect = !restore && seed == finalSeedsString
 
             if (isTypedSeedsCorrect || isVerifiedFromDcrConstants) {
-                intent.putExtra(Constants.SEED, finalSeedsString)
-                startActivity(intent)
+                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN) {
+                    button_confirm_seed.background = ContextCompat.getDrawable(applicationContext, R.drawable.btn_shape3)
+                } else {
+                    button_confirm_seed.setBackgroundDrawable(ContextCompat.getDrawable(applicationContext, R.drawable.btn_shape3))
+                }
+                isConfirmSeed = true
             } else {
+                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN) {
+                    button_confirm_seed.background = ContextCompat.getDrawable(applicationContext, R.drawable.btn_shape_red)
+                } else {
+                    button_confirm_seed.setBackgroundDrawable(ContextCompat.getDrawable(applicationContext, R.drawable.btn_shape_red))
+                }
                 Toast.makeText(applicationContext, R.string.incorrect_seed_input, Toast.LENGTH_SHORT).show()
+
+                isConfirmSeed = false
             }
 
         } else if (sortedList.isNotEmpty() && !isAllSeeds) {
