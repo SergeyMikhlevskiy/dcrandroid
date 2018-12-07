@@ -9,7 +9,6 @@ import android.support.v7.widget.LinearLayoutManager
 import android.view.View
 import android.view.WindowManager
 import android.view.inputmethod.InputMethodManager
-import android.widget.Toast
 import com.dcrandroid.R
 import com.dcrandroid.adapter.CreateWalletAdapter
 import com.dcrandroid.adapter.InputSeed
@@ -52,7 +51,8 @@ class ConfirmSeedActivity : AppCompatActivity() {
             decorView.systemUiVisibility = WindowManager.LayoutParams.FLAG_DRAWS_SYSTEM_BAR_BACKGROUNDS or View.SYSTEM_UI_FLAG_LIGHT_NAVIGATION_BAR
         }
         setContentView(R.layout.confirm_seed_page)
-        window.setFlags(WindowManager.LayoutParams.FLAG_SECURE, WindowManager.LayoutParams.FLAG_SECURE)
+
+        recyclerViewSeeds.isNestedScrollingEnabled = false
         linearLayoutManager = LinearLayoutManager(this)
         recyclerViewSeeds.layoutManager = linearLayoutManager
 
@@ -61,7 +61,12 @@ class ConfirmSeedActivity : AppCompatActivity() {
             recyclerViewSeeds.adapter = null
             sortedList = emptyList()
             confirmedSeedsArray.clear()
-            llButtons.visibility = View.GONE
+            tvError.visibility = View.GONE
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN) {
+                button_confirm_seed.background = ContextCompat.getDrawable(applicationContext, R.drawable.btn_shape2)
+            } else {
+                button_confirm_seed.setBackgroundDrawable(ContextCompat.getDrawable(applicationContext, R.drawable.btn_shape2))
+            }
             currentSeedPosition = 33
             if (restore) {
                 val imm = getSystemService(Context.INPUT_METHOD_SERVICE) as InputMethodManager
@@ -90,6 +95,9 @@ class ConfirmSeedActivity : AppCompatActivity() {
                     initOldWalletAdapter()
                 }
             } else {
+                tvHeader.text = getString(R.string.seed_phrase_verification)
+                tvHint.text = getString(R.string.please_confirm_your_seed_by_typing_and_tapping_each_word_accordingly)
+                headerTop.isFocusableInTouchMode = true
                 initNewWalletAdapter()
             }
         }
@@ -108,10 +116,7 @@ class ConfirmSeedActivity : AppCompatActivity() {
                     sortedList = confirmedSeedsArray.sortedWith(compareBy { it.number })
                 }, { isAllEntered: Boolean ->
             if (isAllEntered && sortedList.size == 33) {
-                llButtons.visibility = View.VISIBLE
                 handleSingleTap(sortedList)
-            } else {
-                llButtons.visibility = View.GONE
             }
         })
 
@@ -125,7 +130,6 @@ class ConfirmSeedActivity : AppCompatActivity() {
             sortedList = confirmedSeedsArray.sortedWith(compareBy { it.number }).distinct()
         }, { isAllEntered: Boolean ->
             if (isAllEntered && sortedList.size == 33) {
-                llButtons.visibility = View.VISIBLE
                 handleSingleTap(sortedList)
             }
         })
@@ -253,22 +257,27 @@ class ConfirmSeedActivity : AppCompatActivity() {
                 } else {
                     button_confirm_seed.setBackgroundDrawable(ContextCompat.getDrawable(applicationContext, R.drawable.btn_shape3))
                 }
+                tvError.visibility = View.GONE
                 isConfirmSeed = true
             } else {
                 if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN) {
-                    button_confirm_seed.background = ContextCompat.getDrawable(applicationContext, R.drawable.btn_shape_red)
+                    button_confirm_seed.background = ContextCompat.getDrawable(applicationContext, R.drawable.btn_shape2)
                 } else {
-                    button_confirm_seed.setBackgroundDrawable(ContextCompat.getDrawable(applicationContext, R.drawable.btn_shape_red))
+                    button_confirm_seed.setBackgroundDrawable(ContextCompat.getDrawable(applicationContext, R.drawable.btn_shape2))
                 }
-                Toast.makeText(applicationContext, R.string.incorrect_seed_input, Toast.LENGTH_SHORT).show()
-
+                tvError.visibility = View.VISIBLE
+                if(restore) {
+                    tvError.text = getString(R.string.restore_wallet_incorrect_seed_input)
+                } else {
+                    tvError.text = getString(R.string.create_wallet_incorrect_seeds_input)
+                }
                 isConfirmSeed = false
             }
 
         } else if (sortedList.isNotEmpty() && !isAllSeeds) {
-            Toast.makeText(applicationContext, getString(R.string.notAllSeedsEntered), Toast.LENGTH_SHORT).show()
+            tvError.text = getString(R.string.notAllSeedsEntered)
         } else {
-            Toast.makeText(applicationContext, getString(R.string.theInputFieldIsEmpty), Toast.LENGTH_SHORT).show()
+            tvError.text = getString(R.string.theInputFieldIsEmpty)
         }
     }
 
