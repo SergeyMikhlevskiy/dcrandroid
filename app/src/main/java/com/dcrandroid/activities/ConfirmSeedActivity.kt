@@ -117,6 +117,9 @@ class ConfirmSeedActivity : AppCompatActivity() {
                 }, { isAllEntered: Boolean ->
             if (isAllEntered && sortedList.size == 33) {
                 handleSingleTap(sortedList)
+                recyclerViewSeeds.isFocusableInTouchMode = false
+                llButtons.isFocusableInTouchMode = true
+                llButtons.requestFocus()
             }
         })
 
