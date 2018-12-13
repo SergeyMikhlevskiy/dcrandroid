@@ -3,12 +3,14 @@ package com.dcrandroid.activities
 import android.content.Context
 import android.content.Intent
 import android.os.Bundle
+import android.os.Handler
 import android.support.v4.content.ContextCompat
 import android.support.v7.app.AppCompatActivity
 import android.support.v7.widget.LinearLayoutManager
 import android.view.View
 import android.view.WindowManager
 import android.view.inputmethod.InputMethodManager
+import android.widget.RelativeLayout
 import com.dcrandroid.R
 import com.dcrandroid.adapter.CreateWalletAdapter
 import com.dcrandroid.adapter.InputSeed
@@ -20,7 +22,10 @@ import kotlinx.android.synthetic.main.confirm_seed_page.*
 import java.util.*
 import kotlin.collections.ArrayList
 
-class ConfirmSeedActivity : AppCompatActivity() {
+
+private const val CLICK_THRESHOLD = 300 //millisecond
+
+class ConfirmSeedActivity : AppCompatActivity(), View.OnClickListener {
 
     private var seed = ""
     private var restore: Boolean = false
@@ -55,28 +60,6 @@ class ConfirmSeedActivity : AppCompatActivity() {
         recyclerViewSeeds.isNestedScrollingEnabled = false
         linearLayoutManager = LinearLayoutManager(this)
         recyclerViewSeeds.layoutManager = linearLayoutManager
-
-        button_delete_seed.setOnClickListener {
-            recyclerViewSeeds.removeAllViewsInLayout()
-            recyclerViewSeeds.adapter = null
-            sortedList = emptyList()
-            confirmedSeedsArray.clear()
-            tvError.visibility = View.GONE
-            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN) {
-                button_confirm_seed.background = ContextCompat.getDrawable(applicationContext, R.drawable.btn_shape2)
-            } else {
-                button_confirm_seed.setBackgroundDrawable(ContextCompat.getDrawable(applicationContext, R.drawable.btn_shape2))
-            }
-            currentSeedPosition = 33
-            if (restore) {
-                val imm = getSystemService(Context.INPUT_METHOD_SERVICE) as InputMethodManager
-                imm.showSoftInput(recyclerViewSeeds, InputMethodManager.SHOW_IMPLICIT)
-                initOldWalletAdapter()
-            } else {
-                initNewWalletAdapter()
-            }
-
-        }
         button_confirm_seed.setOnClickListener(this)
 
         prepareData()
@@ -104,10 +87,14 @@ class ConfirmSeedActivity : AppCompatActivity() {
     }
 
     private fun initOldWalletAdapter() {
-        restoreWalletAdapter = RestoreWalletAdapter(seedsForInput.distinct(), allSeeds, applicationContext,
+        restoreWalletAdapter = RestoreWalletAdapter(seedsForInput, allSeeds, applicationContext,
                 { savedSeed: InputSeed ->
                     confirmedSeedsArray.add(savedSeed)
                     sortedList = confirmedSeedsArray.sortedWith(compareBy { it.number }).distinct()
+                    if (sortedList.size < 33) {
+                        tvError.visibility = View.VISIBLE
+                        tvError.text = getString(R.string.notAllSeedsEntered)
+                    }
                 },
                 { removeSeed: InputSeed ->
                     confirmedSeedsArray.clear()
@@ -131,6 +118,22 @@ class ConfirmSeedActivity : AppCompatActivity() {
             confirmedSeedsArray.clear()
             confirmedSeedsArray.addAll(enteredSeeds)
             sortedList = confirmedSeedsArray.sortedWith(compareBy { it.number }).distinct()
+
+            if (sortedList.size < 33) {
+                tvError.visibility = View.VISIBLE
+                tvError.text = getString(R.string.notAllSeedsEntered)
+            }
+            val itemView = recyclerViewSeeds.findViewById<RelativeLayout>(R.id.rlButtons)
+            val itemHeight = itemView.measuredHeight + itemView.measuredHeight / 40
+
+            val maxAllowedHeight = nestedScrollView.getChildAt(0).bottom - itemView.measuredHeight
+            val currentHeight = (nestedScrollView.scrollY + nestedScrollView.height)
+
+            if (sortedList.size in 3..32) {
+                Handler().postDelayed({ nestedScrollView.smoothScrollBy(0, itemHeight) }, 200)
+            } else if (sortedList.size == 33 && currentHeight <= maxAllowedHeight) {
+                Handler().postDelayed({ nestedScrollView.fullScroll(View.FOCUS_DOWN) }, 200)
+            }
         }, { isAllEntered: Boolean ->
             if (isAllEntered && sortedList.size == 33) {
                 handleSingleTap(sortedList)
@@ -269,7 +272,7 @@ class ConfirmSeedActivity : AppCompatActivity() {
                     button_confirm_seed.setBackgroundDrawable(ContextCompat.getDrawable(applicationContext, R.drawable.btn_shape2))
                 }
                 tvError.visibility = View.VISIBLE
-                if(restore) {
+                if (restore) {
                     tvError.text = getString(R.string.restore_wallet_incorrect_seed_input)
                 } else {
                     tvError.text = getString(R.string.create_wallet_incorrect_seeds_input)
@@ -285,5 +288,4 @@ class ConfirmSeedActivity : AppCompatActivity() {
     }
 
     private fun IntRange.random() = Random().nextInt((allSeeds.size + 1) - start)
-
 }
